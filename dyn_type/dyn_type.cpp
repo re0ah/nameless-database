@@ -1,5 +1,7 @@
 #include "dyn_type.h"
 #include <algorithm>
+#include <string>
+#include <cstring>
 
 using namespace db_col;
 
@@ -30,11 +32,10 @@ void Column::reserve(const size_t size)
 
 void Column::push_back(const uint64_t data)
 {
-	const union Data tmp{._uint64_t{data}};
-	_data.push_back(tmp);
+	_data.push_back(data);
 }
 
-const std::vector<Data>& Column::all_data() const
+const std::vector<uint64_t>& Column::all_data() const
 {
 	return this->_data;
 }
@@ -46,7 +47,7 @@ Column::~Column()
 		size_t size = _data.size();
 		for (size_t i = 0; i < size; i++)
 		{
-			delete (std::string*)_data[i]._struct;
+			delete (std::string*)_data[i];
 		}
 	}
 }
@@ -58,7 +59,7 @@ TYPE Column::type() const
 
 uint64_t Column::data(const size_t pos) const
 {
-	return _data[pos]._uint64_t;
+	return _data[pos];
 }
 
 /*for another types need another function for transfer of string to T.*/
@@ -86,7 +87,7 @@ constexpr inline T str_to_num(const std::string* str)
 }
 
 template <typename T>
-inline void add_base_type(std::vector<Data>& _data,
+inline void add_base_type(std::vector<uint64_t>& _data,
 						  const size_t pos,
 						  const uint64_t val,
 						  const TYPE type)
@@ -96,7 +97,6 @@ inline void add_base_type(std::vector<Data>& _data,
 							 int16_t, int32_t, int64_t,
 							 float, double, std::string*>::value,
                   "pass not supported type in function \"add_base_type\"");
-	T* ptr = data_cast<T>(&_data[pos]);
 	switch(type)
 	{
 		case TYPE::NONE:
@@ -112,21 +112,19 @@ inline void add_base_type(std::vector<Data>& _data,
 		case TYPE::INT64_T:
 			if constexpr (std::is_same<T, bool>::value)
 			{
-				_data[pos]._bool += static_cast<bool>(val);
+				reinterpret_cast<bool&>(_data[pos]) += static_cast<bool>(val);
 				break;
 			}
 		case TYPE::FLOAT:
 		case TYPE::DOUBLE:
-			if constexpr (std::is_same<T, float>::value)
-				*ptr += data_cast<float>(val);
-			else if (std::is_same<T, double>::value)
-				*ptr += data_cast<double>(val);
+			if constexpr (type_check<T, float, double>::value)
+				reinterpret_cast<T&>(_data[pos]) += reinterpret_cast<const T&>(val);
 			else
-				*ptr += static_cast<T>(val);
+				reinterpret_cast<T&>(_data[pos]) += static_cast<T>(val);
 			break;
 		case TYPE::STRING:
 			if constexpr (!std::is_same<T, bool>::value)
-				*ptr += str_to_num<T>((std::string*)val);
+				reinterpret_cast<T&>(_data[pos]) += str_to_num<T>((std::string*)val);
 			break;
 	}
 }
@@ -163,7 +161,7 @@ inline void add_to_string(std::string* str, const uint64_t val)
 			  2. sum this number with argument "val"
 			  3. transform result to string and store
 		*/
-		*str = std::to_string(str_to_num<T>(str) + data_cast<T>(val));
+		*str = std::to_string(str_to_num<T>(str) + reinterpret_cast<const T&>(val));
 	}
 	else /*if not number*/
 	{
@@ -171,7 +169,7 @@ inline void add_to_string(std::string* str, const uint64_t val)
 		 	  1. transform number to string
 			  2. concate this number with string
 		*/
-		*str += std::to_string(data_cast<T>(val));
+		*str += std::to_string(reinterpret_cast<const T&>(val));
 	}
 }
 
@@ -216,7 +214,7 @@ void Column::add(const size_t pos, const uint64_t val, const TYPE type)
 			break;
 		case TYPE::STRING:
 			{
-				std::string* t1 = (std::string*)_data[pos]._struct;
+				std::string* t1 = (std::string*)_data[pos];
 				std::string* t2;
 				switch(type)
 				{
@@ -240,9 +238,10 @@ void Column::add(const size_t pos, const uint64_t val, const TYPE type)
 						break;
 					case TYPE::UINT16_T:
 						add_to_string<uint16_t>(t1, val);
-					case TYPE::UINT32_T:
 						break;
+					case TYPE::UINT32_T:
 						add_to_string<uint32_t>(t1, val);
+						break;
 					case TYPE::UINT64_T:
 						add_to_string<uint64_t>(t1, val);
 						break;
@@ -263,7 +262,7 @@ void Column::add(const size_t pos, const uint64_t val, const TYPE type)
 }
 
 template <typename T>
-inline void set_base_type(std::vector<Data>& _data,
+inline void set_base_type(std::vector<uint64_t>& _data,
 						  const size_t pos,
 						  const uint64_t val,
 						  const TYPE type)
@@ -286,23 +285,23 @@ inline void set_base_type(std::vector<Data>& _data,
 		case TYPE::INT32_T:
 		case TYPE::UINT64_T:
 		case TYPE::INT64_T:
-			_data[pos]._uint64_t = val;
+			_data[pos] = val;
 			break;
 		case TYPE::FLOAT:
 			/*for float & double not need cast data, but since they
 			  stores as uint64_t, for other types need cast*/
 			if constexpr (type_check<T, float, double>::value)
-				_data[pos]._uint64_t = val;
+				_data[pos] = val;
 			else
-				_data[pos]._uint64_t = data_cast<float>(val);
+				_data[pos] = reinterpret_cast<const float&>(val);
 			break;
 		case TYPE::DOUBLE:
 			/*for float & double not need cast data, but since they
 			  stores as uint64_t, for other types need cast*/
 			if constexpr (type_check<T, float, double>::value)
-				_data[pos]._uint64_t = val;
+				_data[pos] = val;
 			else
-				_data[pos]._uint64_t = data_cast<double>(val);
+				_data[pos] = reinterpret_cast<const double&>(val);
 			break;
 		case TYPE::STRING:
 			{
@@ -310,12 +309,12 @@ inline void set_base_type(std::vector<Data>& _data,
 				if constexpr (std::is_same<T, bool>::value)
 				{
 					if(*tmp == "true")
-						_data[pos]._bool = 1;
+						reinterpret_cast<bool&>(_data[pos]) = 1;
 					else if(*tmp == "false")
-						_data[pos]._bool = 0;
+						reinterpret_cast<bool&>(_data[pos]) = 0;
 				}
 				else
-					*data_cast<T>(&_data[pos]) = str_to_num<T>(tmp);
+					reinterpret_cast<T&>(_data[pos]) = str_to_num<T>(tmp);
 			}
 			break;
 	}
@@ -362,7 +361,7 @@ void Column::set(const size_t pos, const uint64_t val, const TYPE type)
 			break;
 		case TYPE::STRING:
 			{
-				std::string* t1 = (std::string*)_data[pos]._struct;
+				std::string* t1 = (std::string*)_data[pos];
 				std::string* t2;
 				switch(type)
 				{
@@ -375,34 +374,34 @@ void Column::set(const size_t pos, const uint64_t val, const TYPE type)
 							*t1 = "false";
 						break;
 					case TYPE::UINT8_T:
-						*t1 = std::to_string(data_cast<uint8_t>(val));
+						*t1 = std::to_string(static_cast<uint8_t>(val));
 						break;
 					case TYPE::UINT16_T:
-						*t1 = std::to_string(data_cast<uint16_t>(val));
+						*t1 = std::to_string(static_cast<uint16_t>(val));
 						break;
 					case TYPE::UINT32_T:
-						*t1 = std::to_string(data_cast<uint32_t>(val));
+						*t1 = std::to_string(static_cast<uint32_t>(val));
 						break;
 					case TYPE::UINT64_T:
-						*t1 = std::to_string(data_cast<uint64_t>(val));
+						*t1 = std::to_string(static_cast<uint64_t>(val));
 						break;
 					case TYPE::INT8_T:
-						*t1 = std::to_string(data_cast<int8_t>(val));
+						*t1 = std::to_string(static_cast<int8_t>(val));
 						break;
 					case TYPE::INT16_T:
-						*t1 = std::to_string(data_cast<int16_t>(val));
+						*t1 = std::to_string(static_cast<int16_t>(val));
 						break;
 					case TYPE::INT32_T:
-						*t1 = std::to_string(data_cast<int32_t>(val));
+						*t1 = std::to_string(static_cast<int32_t>(val));
 						break;
 					case TYPE::INT64_T:
-						*t1 = std::to_string(data_cast<int64_t>(val));
+						*t1 = std::to_string(static_cast<int64_t>(val));
 						break;
 					case TYPE::FLOAT:
-						*t1 = std::to_string(data_cast<float>(val));
+//						*t1 = std::to_string(reinterpret_cast<float>(val));
 						break;
 					case TYPE::DOUBLE:
-						*t1 = std::to_string(data_cast<double>(val));
+//						*t1 = std::to_string(reinterpret_cast<double>(val));
 						break;
 					case TYPE::STRING:
 						t2 = (std::string*)val;
