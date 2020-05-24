@@ -1,7 +1,6 @@
 #pragma once
-#include <string>
 #include <vector>
-#include <iostream>
+#include <cstdint>
 
 namespace db_col
 {
@@ -43,21 +42,42 @@ class Column
 		TYPE type() const;
 		void reserve(const size_t size);
 		void push_back(const uint64_t data);
-		void set_type();
+
+		/*set type
+		  all data in Column will be transfer to needed type.
+		  Interaction with types:
+		  	None:
+				all types -> nothing do
+---------------------------------------------------------------
+			Bool:	
+				Uint8_t, Int8_t, Uint16_t, Int16_t, Uint32_t,
+				Int32_t, Uint64_t, Int64_t, Float, Double -> nothing do
+
+				String -> if true then "true", same for false
+---------------------------------------------------------------
+			Uint8_t, Int8_t, Uint16_t, Int16_t, Uint32_t,
+			Int32_t, Uint64_t, Int64_t, Float, Double:
+				None, Bool -> nothing do
+
+				Uint8_t, int8_t, uint16_t, int16_t,
+				uint32_t, int32_t, uint64_t, int64_t,
+				float, double -> cast, for (signed -> unsigned) lost sign
+				
+				String -> transfer, allocate str and save
+---------------------------------------------------------------
+			String:
+				None -> nothing do
+				
+				Bool -> if "true" then true, same for "false"
+				
+				Uint8_t, int8_t, uint16_t, int16_t,
+				uint32_t, int32_t, uint64_t, int64_t,
+				float, double -> transfer
+		*/
+		void set_type(const TYPE);
 		void set_data();
 		const std::vector<uint64_t>& all_data() const;
 		uint64_t data(const size_t pos) const;
-
-		/*unite 2 functions: data and data_cast, allow write shorter.
-		  Example: need return and output string to ostream
-			   
-				if use basic data (which return just uint64_t) need will write:
-					std::cout << *(data_cast<std::string*>(class_name.data(n));
-				with this template can write:
-					std::cout << *(cl.data<std::string*>(n);
-				
-				what, on my opinion, better
-		 */
 		template <typename T>
 		T data(const size_t pos) const
 		{
@@ -83,36 +103,12 @@ class Column
 				uint32_t, int32_t, uint64_t, int64_t,
 				float, double -> cast to T and add
 				
-				String -> transfer string to needed type 
-						  (signed or unsigned) and add
----------------------------------------------------------------
-			Float, Double +=:
-				None -> nothing do
-
-				Uint8_t, int8_t, uint16_t, int16_t, uint32_t,
-				int32_t, uint64_t, int64_t -> cast to T and add
-
-				Float  -> transfer with data_cast to float and add
-
-				Double -> transfer with data_cast to double and add
-
-				String -> transfer string to float or double and add
+				String -> transfer string to needed type and add
 ---------------------------------------------------------------
 			String +=:
 				None     -> nothing do
 
 				String   -> concate strings
-
-				Depending on what how can interpret string there 2 option:
-					1. If string must be interpret how number 
-					   (float or int, not matter) then string
-					   will be transfer to number and to him
-					   will be add argument who was pass. After
-					   transfer this number back to string.
-
-					2. If string must be interpret how string,
-					not number, then argument will be transfer
-					to string and concate.
 		*/
 		void add(const size_t pos, const uint64_t val, const TYPE type);
 
@@ -145,6 +141,67 @@ class Column
 				String -> set
 		*/
 		void set(const size_t pos, const uint64_t val, const TYPE type);
+
+		/*sub ( -= )
+		  Interaction with types:
+		 	None -=:
+				all types -> nothing to do
+---------------------------------------------------------------
+			Bool -=:
+				Uint8_t, int8_t, uint16_t, int16_t, uint32_t,
+				int32_t, uint64_t, int64_t -> cast to bool and sub
+				
+				None, Float, Double, String -> nothing do
+---------------------------------------------------------------
+			Uint8_t, Int8_t, Uint16_t, Int16_t, Uint32_t,
+			Int32_t, Uint64_t, Int64_t, Float, Double -=:
+				None -> nothing do
+
+				Uint8_t, int8_t, uint16_t, int16_t,
+				uint32_t, int32_t, uint64_t, int64_t,
+				float, double -> cast to T and sub
+				
+				String -> transfer string to needed type and sub
+---------------------------------------------------------------
+			String -=:
+				all types -> nothing do
+		*/
+		void sub(const size_t pos, const uint64_t val, const TYPE type);
+
+		/*mul ( *= )
+		  Interaction with types:
+		 	None, Bool *=:
+				all types -> nothing to do
+---------------------------------------------------------------
+			Uint8_t, Int8_t, Uint16_t, Int16_t, Uint32_t,
+			Int32_t, Uint64_t, Int64_t, float, double *=:
+				None -> nothing do
+
+				Uint8_t, int8_t, uint16_t, int16_t,
+				uint32_t, int32_t, uint64_t, int64_t,
+				float, double -> cast to T and mul
+				
+				String -> transfer string to needed type and mul
+		*/
+		void mul(const size_t pos, const uint64_t val, const TYPE type);
+
+		/*div ( /= )
+		  Interaction with types:
+		 	None, Bool, String /=:
+				all types -> nothing to do
+---------------------------------------------------------------
+			Uint8_t, Int8_t, Uint16_t, Int16_t, Uint32_t,
+			Int32_t, Uint64_t, Int64_t, Float, Double /=:
+				None -> nothing do
+
+				Uint8_t, int8_t, uint16_t, int16_t,
+				uint32_t, int32_t, uint64_t, int64_t,
+				float, double -> cast to T and div
+				
+				String -> transfer string to need type and div
+		*/
+		void div(const size_t pos, const uint64_t val, const TYPE type);
+		
 	private:
 		TYPE _type;
 		std::vector<uint64_t> _data;
