@@ -41,8 +41,10 @@ class Column
 		Column();
 		Column(const TYPE type);
 		Column(const Column& col);
+		Column(const Column&& col);
 		~Column();
 		Column& operator=(const Column& col);
+		Column& operator=(const Column&& col);
 		TYPE type() const;
 		size_t size() const;
 		void reserve(const size_t size);
@@ -81,8 +83,9 @@ class Column
 				uint32_t, int32_t, uint64_t, int64_t,
 				float, double -> transfer
 		*/
-		void set_type(const TYPE);
-		void set_data();
+		uint64_t set_type_data(uint64_t data, const TYPE type_now,
+											  const TYPE type_will) const;
+		void set_type_column(const TYPE);
 		const std::vector<uint64_t>& all_data() const;
 		uint64_t data(const size_t pos) const;
 		template <typename T>
@@ -109,10 +112,9 @@ class Column
 				all types -> nothing to do
 ---------------------------------------------------------------
 			Bool =:
-				Uint8_t, int8_t, uint16_t, int16_t, uint32_t,
-				int32_t, uint64_t, int64_t -> cast to bool and add
+				Bool -> set
 
-				String, None, float, double -> nothing to do
+				all other types -> nothing to do
 ---------------------------------------------------------------
 			Uint8_t, Int8_t, Uint16_t, Int16_t, Uint32_t,
 			Int32_t, Uint64_t, Int64_t, float, double =:
@@ -127,46 +129,28 @@ class Column
 				
 				String -> set
 		*/
-		void set(const size_t pos, const uint64_t val, const TYPE type);
+		void set(const size_t pos, uint64_t val, const TYPE type);
 
 		/*add ( += )
 		  Interaction with types:
-		 	None +=:
+		 	None, Bool +=:
 				all types -> nothing to do
----------------------------------------------------------------
-			Bool +=:
-				Uint8_t, int8_t, uint16_t, int16_t, uint32_t,
-				int32_t, uint64_t, int64_t -> cast to bool and add
-				
-				None, Float, Double, String -> nothing do
 ---------------------------------------------------------------
 			Uint8_t, Int8_t, Uint16_t, Int16_t, Uint32_t,
 			Int32_t, Uint64_t, Int64_t +=:
-				None -> nothing do
-
 				Uint8_t, int8_t, uint16_t, int16_t,
 				uint32_t, int32_t, uint64_t, int64_t,
 				float, double -> cast to T and add
-				
-				String -> transfer string to needed type and add
 ---------------------------------------------------------------
 			String +=:
-				None     -> nothing do
-
 				String   -> concate strings
 		*/
-		void add(const size_t pos, const uint64_t val, const TYPE type);
+		void add(const size_t pos, uint64_t val, const TYPE type);
 
 		/*sub ( -= )
 		  Interaction with types:
-		 	None, String -=:
+		 	None, String, Bool -=:
 				all types -> nothing to do
----------------------------------------------------------------
-			Bool -=:
-				Uint8_t, int8_t, uint16_t, int16_t, uint32_t,
-				int32_t, uint64_t, int64_t -> cast to bool and sub
-				
-				None, Float, Double, String -> nothing do
 ---------------------------------------------------------------
 			Uint8_t, Int8_t, Uint16_t, Int16_t, Uint32_t,
 			Int32_t, Uint64_t, Int64_t, Float, Double -=:
@@ -176,11 +160,11 @@ class Column
 				uint32_t, int32_t, uint64_t, int64_t,
 				float, double -> cast to T and sub
 		*/
-		void sub(const size_t pos, const uint64_t val, const TYPE type);
+		void sub(const size_t pos, uint64_t val, const TYPE type);
 
 		/*mul ( *= )
 		  Interaction with types:
-		 	None, Bool *=:
+		 	None, Bool, String *=:
 				all types -> nothing to do
 ---------------------------------------------------------------
 			Uint8_t, Int8_t, Uint16_t, Int16_t, Uint32_t,
@@ -191,7 +175,7 @@ class Column
 				uint32_t, int32_t, uint64_t, int64_t,
 				float, double -> cast to T and mul
 		*/
-		void mul(const size_t pos, const uint64_t val, const TYPE type);
+		void mul(const size_t pos, uint64_t val, const TYPE type);
 
 		/*div ( /= )
 		  Interaction with types:
@@ -199,14 +183,13 @@ class Column
 				all types -> nothing to do
 ---------------------------------------------------------------
 			Uint8_t, Int8_t, Uint16_t, Int16_t, Uint32_t,
-			Int32_t, Uint64_t, Int64_t, Float, Double /=:
-				None -> nothing do
-
+			Int32_t, Uint64_t, Int64_t, float, double /=:
 				Uint8_t, int8_t, uint16_t, int16_t,
 				uint32_t, int32_t, uint64_t, int64_t,
-				float, double -> cast to T and div
+				float, double-> cast to T and div
+				
 		*/
-		void div(const size_t pos, const uint64_t val, const TYPE type);
+		void div(const size_t pos, uint64_t val, const TYPE type);
 		
 		/*equal ( == )
 		  Interaction with types:
@@ -215,30 +198,26 @@ class Column
 				all other types -> false
 ---------------------------------------------------------------
 			Bool ==:
-				None -> false
-				all other types -> cast and compare
+				Bool -> compare
+
+				all other types -> false
 ---------------------------------------------------------------
 			Uint8_t, Int8_t, Uint16_t, Int16_t, Uint32_t,
 			Int32_t, Uint64_t, Int64_t, Float, Double ==:
-				None, String -> false
-				
-				Bool -> cast and compare
+				None, String, Bool, Float, Double -> false
 
 				Uint8_t, Int8_t, Uint16_t, Int16_t,
-				Uint32_t, Int32_t, Uint64_t, Int64_t,
-				Float, Double -> compare
+				Uint32_t, Int32_t, Uint64_t, Int64_t -> compare
 ---------------------------------------------------------------
 			String ==:
-				None, Uint8_t, Int8_t, Uint16_t, Int16_t,
+				None, Bool, Uint8_t, Int8_t, Uint16_t, Int16_t,
 				Uint32_t, Int32_t, Uint64_t, Int64_t,
 				Float, Double -> false
 
-				Bool -> compare, if "true" or "false
-
 				String -> compare
 		 */
-		bool equal(const size_t pos, const uint64_t val, const TYPE type);
-		bool not_equal(const size_t pos, const uint64_t val, const TYPE type);
+		bool equal(const size_t pos, const uint64_t val, const TYPE type) const;
+		bool not_equal(const size_t pos, const uint64_t val, const TYPE type) const;
 	private:
 		TYPE _type;
 		std::vector<uint64_t> _data;

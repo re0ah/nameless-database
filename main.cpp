@@ -41,10 +41,28 @@ int main(int argc, char** argv)
 				  Column(TYPE::DOUBLE),   /*10*/
 				  Column(TYPE::STRING)    /*11*/
 	};
-	cl[0].push_back(reinterpret_cast<uint64_t&&>(0));
-	cl[0].set_type(TYPE::STRING);
-	cl[0].set_data(1, (uint64_t)str);
+	cl[0].push_back(1);
+	cl[0].push_back(1);
+	cl[0].push_back(0);
+	cl[0].push_back(0);
+	cl[0].push_back(0);
+	cl[0].push_back(1);
+	cl[0].push_back(0);
+	cl[0].push_back(0);
+	cl[0].push_back(0);
+	cl[0].push_back(1);
+	cl[0].push_back(0);
+	cl[0].push_back(0);
+	cl[0].push_back(0);
+	cl[0].push_back(1);
+	cl[0].set_type_column(TYPE::STRING);
+	cl[0].set_type_column(TYPE::BOOL);
+	cl[0].set_type_column(TYPE::STRING);
+	cl[0].set_type_column(TYPE::BOOL);
 	cl[0].print_info_stdout();
+	cl[10].push_back(reinterpret_cast<uint64_t&&>(3.15));
+	cl[10].test(0, 2, TYPE::INT8_T);
+	cl[10].print_stdout(0);
 //	cl[4].mul(0, (uint64_t)str, TYPE::INT32_T);
 //	std::cout << cl[0].data<int16_t>(0) << std::endl;
 	return 0;
