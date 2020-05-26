@@ -1,35 +1,10 @@
 #pragma once
 #include <vector>
 #include <cstdint>
-#include <string>
-#include <ostream>
+#include "type.h"
 
 namespace db_col
 {
-enum class TYPE
-{
-	NONE     = 0,
-	BOOL     = 1,
-	UINT8_T  = 2,
-	INT8_T   = 3,
-	UINT16_T = 4,
-	INT16_T  = 5,
-	UINT32_T = 6,
-	INT32_T  = 7,
-	UINT64_T = 8,
-	INT64_T  = 9,
-	FLOAT    = 10,
-	DOUBLE   = 11,
-	STRING   = 12
-};
-
-std::ostream& operator<< (std::ostream& os, const TYPE& type);
-
-/*snatch from https://stackoverflow.com/questions/17032310/how-to-make-a-variadic-is-same
-  compare all variadic types with T - if no match then return false*/
-template <class T, class... Ts>
-struct type_check : std::disjunction<std::is_same<T, Ts>...> {};
-
 /*class Column store vector<uint64_t> and must be
   store data of any type, for which declare
   interaction with another types. All types in this
@@ -51,40 +26,6 @@ class Column
 		void push_back(const uint64_t data);
 		void resize(const size_t size);
 		void set_data(const size_t pos, const uint64_t data);
-
-		/*set type
-		  all data in Column will be transfer to needed type.
-		  Interaction with types:
-		  	None:
-				all types -> nothing do
----------------------------------------------------------------
-			Bool:	
-				Uint8_t, Int8_t, Uint16_t, Int16_t, Uint32_t,
-				Int32_t, Uint64_t, Int64_t, Float, Double -> nothing do
-
-				String -> if true then "true", same for false
----------------------------------------------------------------
-			Uint8_t, Int8_t, Uint16_t, Int16_t, Uint32_t,
-			Int32_t, Uint64_t, Int64_t, Float, Double:
-				None, Bool -> nothing do
-
-				Uint8_t, int8_t, uint16_t, int16_t,
-				uint32_t, int32_t, uint64_t, int64_t,
-				float, double -> cast, for (signed -> unsigned) lost sign
-				
-				String -> transfer, allocate str and save
----------------------------------------------------------------
-			String:
-				None -> nothing do
-				
-				Bool -> if "true" then true, same for "false"
-				
-				Uint8_t, int8_t, uint16_t, int16_t,
-				uint32_t, int32_t, uint64_t, int64_t,
-				float, double -> transfer
-		*/
-		uint64_t set_type_data(uint64_t data, const TYPE type_now,
-											  const TYPE type_will) const;
 		void set_type_column(const TYPE);
 		const std::vector<uint64_t>& all_data() const;
 		uint64_t data(const size_t pos) const;
