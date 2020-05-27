@@ -53,15 +53,10 @@ int main(int argc, char** argv)
 	cl[0].push_back(0);
 	cl[0].push_back(0);
 	cl[0].push_back(1);
-	cl[0].set_type_column(TYPE::STRING);
-	cl[0].set_type_column(TYPE::BOOL);
-	cl[0].set_type_column(TYPE::STRING);
-	cl[0].set_type_column(TYPE::BOOL);
-	cl[0].print_info_stdout();
-	cl[6].push_back(reinterpret_cast<uint64_t&&>(5));
-	cl[6].add(0, 2, TYPE::INT8_T);
-	cl[6].print_stdout(0);
+	cl[11].push_back((uint64_t)str);
+	cl[11].set_flag_add(TYPE::FLOAT, true);
+	cl[11].add(0, reinterpret_cast<uint64_t&&>(3.14f), TYPE::FLOAT);
+	cl[11].print_all_stdout();
 //	cl[4].mul(0, (uint64_t)str, TYPE::INT32_T);
-//	std::cout << cl[0].data<int16_t>(0) << std::endl;
 	return 0;
 }

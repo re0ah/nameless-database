@@ -20,6 +20,7 @@ enum class TYPE
     DOUBLE   = 11,
     STRING   = 12
 };      
+const size_t ENUM_TYPE_SIZE = static_cast<size_t>(TYPE::STRING);
         
 std::ostream& operator<< (std::ostream& os, const TYPE& type);
 
