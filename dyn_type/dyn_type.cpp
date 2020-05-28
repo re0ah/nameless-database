@@ -285,14 +285,13 @@ void Column::set(const size_t pos, uint64_t val, const TYPE type)
 	}
 	else
 	{
-		val = set_type_data(val, type, this->_type);
 		if(this->_type == TYPE::STRING)
 		{
 			std::string* this_str = (std::string*)this->_data[pos];
-			*this_str = std::move(*((std::string*)val));
-			delete ((std::string*)val);
+			*this_str = std::move(type_to_string(type, val));
 			return;
 		}
+		val = set_type_data(val, type, this->_type);
 	}
 
 	_data[pos] = val;
@@ -316,14 +315,13 @@ void Column::add(const size_t pos, uint64_t val, const TYPE type)
 	}
 	else
 	{
-		val = set_type_data(val, type, this->_type);
 		if(this->_type == TYPE::STRING)
 		{
 			std::string* this_str = (std::string*)this->_data[pos];
-			*this_str += std::move(*((std::string*)val));
-			delete ((std::string*)val);
+			*this_str += std::move(type_to_string(type, val));
 			return;
 		}
+		val = set_type_data(val, type, this->_type);
 	}
 
 	switch(this->_type)
@@ -514,7 +512,7 @@ bool Column::equal(const size_t pos, uint64_t val, const TYPE type) const
 {
 	if(flag_equal(type) == false)
 	{
-		return;
+		return false;
 	}
 
 	if (this->_type == type)
@@ -570,21 +568,114 @@ bool Column::not_equal(const size_t pos, uint64_t val, const TYPE type) const
 
 bool Column::less(const size_t pos, uint64_t val, const TYPE type) const
 {
-	return true;
+	if(flag_less(type) == false)
+	{
+		return false;
+	}
+
+	if (this->_type == type)
+	{
+		if(this->_type == TYPE::STRING)
+		{
+			std::string* this_str = (std::string*)this->_data[pos];
+			return ((*this_str.size()) < (*((std::string*)val).size()));
+		}
+	}
+	else
+	{
+		if(this->_type == TYPE::STRING)
+		{
+			return false;
+		}
+		val = set_type_data(val, type, this->_type);
+	}
+
+	switch(this->_type)
+	{
+		case TYPE::UINT8_T:
+			return reinterpret_cast<const uint8_t&>(_data[pos]) < static_cast<uint8_t>(val);
+		case TYPE::INT8_T:
+			return reinterpret_cast<const int8_t&>(_data[pos]) < static_cast<int8_t>(val);
+		case TYPE::UINT16_T:
+			return reinterpret_cast<const uint16_t&>(_data[pos]) < static_cast<uint16_t>(val);
+		case TYPE::INT16_T:
+			return reinterpret_cast<const int16_t&>(_data[pos]) < static_cast<int16_t>(val);
+		case TYPE::UINT32_T:
+			return reinterpret_cast<const uint32_t&>(_data[pos]) < static_cast<uint32_t>(val);
+		case TYPE::INT32_T:
+			return reinterpret_cast<const int32_t&>(_data[pos]) < static_cast<int32_t>(val);
+		case TYPE::UINT64_T:
+			return reinterpret_cast<const uint64_t&>(_data[pos]) < static_cast<uint64_t>(val);
+		case TYPE::INT64_T:
+			return reinterpret_cast<const int64_t&>(_data[pos]) < static_cast<int64_t>(val);
+		case TYPE::FLOAT:
+			return reinterpret_cast<const float&>(_data[pos]) < reinterpret_cast<float&>(val);
+		case TYPE::DOUBLE:
+			return reinterpret_cast<const double&>(_data[pos]) < reinterpret_cast<double&>(val);
+		default:
+			return false;
+	}
 }
 
 bool Column::more(const size_t pos, uint64_t val, const TYPE type) const
 {
-	return true;
+	if(flag_more(type) == false)
+	{
+		return false;
+	}
+
+	if (this->_type == type)
+	{
+		if(this->_type == TYPE::STRING)
+		{
+			std::string* this_str = (std::string*)this->_data[pos];
+			return ((*this_str.size()) > (*((std::string*)val).size()));
+		}
+	}
+	else
+	{
+		if(this->_type == TYPE::STRING)
+		{
+			return false;
+		}
+		val = set_type_data(val, type, this->_type);
+	}
+
+	switch(this->_type)
+	{
+		case TYPE::UINT8_T:
+			return reinterpret_cast<const uint8_t&>(_data[pos]) > static_cast<uint8_t>(val);
+		case TYPE::INT8_T:
+			return reinterpret_cast<const int8_t&>(_data[pos]) > static_cast<int8_t>(val);
+		case TYPE::UINT16_T:
+			return reinterpret_cast<const uint16_t&>(_data[pos]) > static_cast<uint16_t>(val);
+		case TYPE::INT16_T:
+			return reinterpret_cast<const int16_t&>(_data[pos]) > static_cast<int16_t>(val);
+		case TYPE::UINT32_T:
+			return reinterpret_cast<const uint32_t&>(_data[pos]) > static_cast<uint32_t>(val);
+		case TYPE::INT32_T:
+			return reinterpret_cast<const int32_t&>(_data[pos]) > static_cast<int32_t>(val);
+		case TYPE::UINT64_T:
+			return reinterpret_cast<const uint64_t&>(_data[pos]) > static_cast<uint64_t>(val);
+		case TYPE::INT64_T:
+			return reinterpret_cast<const int64_t&>(_data[pos]) > static_cast<int64_t>(val);
+		case TYPE::FLOAT:
+			return reinterpret_cast<const float&>(_data[pos]) > reinterpret_cast<float&>(val);
+		case TYPE::DOUBLE:
+			return reinterpret_cast<const double&>(_data[pos]) > reinterpret_cast<double&>(val);
+		default:
+			return false;
+	}
 }
 
 bool Column::less_or_equal(const size_t pos, uint64_t val, const TYPE type) const
 {
-	return true;
+	return !(more(pos, val, type);
 }
+
 bool Column::more_or_equal(const size_t pos, uint64_t val, const TYPE type) const
 {
-	return true;
+	return !(less(pos, val, type);
 }
 
 void Column::set_flags(const struct flags_column& flags)

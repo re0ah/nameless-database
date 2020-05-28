@@ -55,7 +55,8 @@ int main(int argc, char** argv)
 	cl[0].push_back(1);
 	cl[11].push_back((uint64_t)str);
 	cl[11].set_flag_add(TYPE::FLOAT, true);
-	cl[11].add(0, reinterpret_cast<uint64_t&&>(3.14f), TYPE::FLOAT);
+	cl[11].set_flag_set(TYPE::FLOAT, true);
+	cl[11].set(0, reinterpret_cast<uint64_t&&>(3.14f), TYPE::FLOAT);
 	cl[11].print_all_stdout();
 //	cl[4].mul(0, (uint64_t)str, TYPE::INT32_T);
 	return 0;

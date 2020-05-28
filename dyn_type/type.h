@@ -22,6 +22,37 @@ enum class TYPE
 };      
 const size_t ENUM_TYPE_SIZE = static_cast<size_t>(TYPE::STRING);
         
+inline std::string type_to_string(const TYPE type, const uint64_t val)
+{
+	switch(type)
+	{
+		case TYPE::BOOL:
+			return ((static_cast<bool>(val)) ? std::string("true") : std::string("false"));
+		case TYPE::UINT8_T:
+			return std::to_string(static_cast<uint8_t>(val));
+		case TYPE::INT8_T:
+			return std::to_string(static_cast<int8_t>(val));
+		case TYPE::UINT16_T:
+			return std::to_string(static_cast<uint16_t>(val));
+		case TYPE::INT16_T:
+			return std::to_string(static_cast<int16_t>(val));
+		case TYPE::UINT32_T:
+			return std::to_string(static_cast<uint32_t>(val));
+		case TYPE::INT32_T:
+			return std::to_string(static_cast<int32_t>(val));
+		case TYPE::UINT64_T:
+			return std::to_string(static_cast<uint64_t>(val));
+		case TYPE::INT64_T:
+			return std::to_string(static_cast<int64_t>(val));
+		case TYPE::FLOAT:
+			return std::to_string(reinterpret_cast<const float&>(val));
+		case TYPE::DOUBLE:
+			return std::to_string(reinterpret_cast<const double&>(val));
+		default:
+			return std::string("");
+	}
+}
+
 std::ostream& operator<< (std::ostream& os, const TYPE& type);
 
 /*set type
