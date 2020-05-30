@@ -90,3 +90,43 @@ std::ostream& operator<< (std::ostream& os, const TYPE& type);
 			float, double -> transfer
 */
 uint64_t set_type_data(std::pair<TYPE, uint64_t> data, const TYPE type_will);
+
+std::pair<TYPE, uint64_t&>& operator+=(std::pair<TYPE, uint64_t&>& lhs,
+                                       std::pair<TYPE, uint64_t>& rhs);
+std::pair<TYPE, uint64_t&>& operator+=(std::pair<TYPE, uint64_t&>& lhs,
+                                       std::pair<TYPE, uint64_t>&& rhs);
+
+std::pair<TYPE, uint64_t&>& operator-=(std::pair<TYPE, uint64_t&>& lhs,
+                                       std::pair<TYPE, uint64_t>& rhs);
+std::pair<TYPE, uint64_t&>& operator-=(std::pair<TYPE, uint64_t&>& lhs,
+                                       std::pair<TYPE, uint64_t>&& rhs);
+
+std::pair<TYPE, uint64_t&>& operator*=(std::pair<TYPE, uint64_t&>& lhs,
+                                       std::pair<TYPE, uint64_t>& rhs);
+std::pair<TYPE, uint64_t&>& operator*=(std::pair<TYPE, uint64_t&>& lhs,
+                                       std::pair<TYPE, uint64_t>&& rhs);
+
+std::pair<TYPE, uint64_t&>& operator/=(std::pair<TYPE, uint64_t&>& lhs,
+                                       std::pair<TYPE, uint64_t>& rhs);
+std::pair<TYPE, uint64_t&>& operator/=(std::pair<TYPE, uint64_t&>& lhs,
+									   std::pair<TYPE, uint64_t>&& rhs);
+
+bool operator==(std::pair<TYPE, uint64_t> lhs,
+				std::pair<TYPE, uint64_t> rhs);
+
+bool operator!=(std::pair<TYPE, uint64_t> lhs,
+				std::pair<TYPE, uint64_t> rhs);
+
+bool operator<(std::pair<TYPE, uint64_t> lhs,
+				std::pair<TYPE, uint64_t> rhs);
+
+bool operator>(std::pair<TYPE, uint64_t> lhs,
+				std::pair<TYPE, uint64_t> rhs);
+
+bool operator<=(std::pair<TYPE, uint64_t> lhs,
+				std::pair<TYPE, uint64_t> rhs);
+
+bool operator>=(std::pair<TYPE, uint64_t> lhs,
+				std::pair<TYPE, uint64_t> rhs);
+
+std::ostream& operator<< (std::ostream& os, const std::pair<TYPE, uint64_t>& data);

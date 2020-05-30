@@ -34,9 +34,8 @@ void Table::print_column_element_stdout(const size_t index_column,
 {
 	std::cout << "Table: " << _name << ", "
 		      << "Column: " << _data[index_column].name() << '\n'
-			  << "value[" << index_element << "]: ";
-	_data[index_column].print_stdout(index_element);
-	std::cout << std::endl;
+			  << "value[" << index_element << "]: "
+			  << _data[index_column][index_element] << std::endl;
 }
 
 void Table::print_column_stdout(const size_t index_column) const

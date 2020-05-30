@@ -27,20 +27,21 @@ class Column
 {
 	public:
 		Column(const TYPE type=TYPE::NONE,
-			   const size_t reserve=16);
+			   const size_t reserve=1);
 		Column(const std::string& name,
 			   const TYPE type=TYPE::NONE,
-			   const size_t reserve=16);
+			   const size_t reserve=1);
 		Column(const std::string&& name,
 			   const TYPE type=TYPE::NONE,
-			   const size_t reserve=16);
+			   const size_t reserve=1);
 		Column(const Column& col);
 		Column(const Column&& col);
 		~Column();
 		void swap(Column& lhs, Column& rhs);
 		Column& operator=(Column col);
 		Column& operator=(const Column&& col);
-		const uint64_t& operator[](const size_t index) const;
+		std::pair<TYPE, uint64_t&> operator[](const size_t index);
+		const std::pair<TYPE, uint64_t> operator[](const size_t index) const;
 		TYPE type() const;
 		size_t size() const;
 		void reserve(const size_t size);
@@ -48,20 +49,6 @@ class Column
 		void resize(const size_t size);
 		void set_type_column(const TYPE);
 		std::vector<uint64_t> all_data() const;
-
-		uint64_t data(const size_t pos) const;
-		template <typename T>
-		T data(const size_t pos) const
-		{
-			if constexpr(type_check<T, std::string>::value)
-			{
-				return *((T*)_data[pos]);
-			}
-			else
-			{
-				return (T)_data[pos];
-			}
-		};
 
 		void print_stdout(const size_t pos) const;
 		void print_type_stdout() const;
