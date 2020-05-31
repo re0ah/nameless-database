@@ -1,5 +1,30 @@
 #include "type.h"
 
+namespace db_column
+{
+
+flag_type::flag_type(std::initializer_list<bool> list)
+{
+	if(list.size() == sizeof(_data))
+    {
+        auto it = list.begin();
+        for(size_t i = 0; i < list.size(); i++)
+        {
+            _data[i] = *it++;
+        }
+    }
+}
+
+bool& flag_type::operator[](const TYPE type)
+{
+	return _data[static_cast<size_t>(type)];
+}
+
+const bool& flag_type::operator[](const TYPE type) const
+{
+	return _data[static_cast<size_t>(type)];
+}
+
 std::ostream& operator<< (std::ostream& os, const TYPE& type)
 {
     static const std::string type_str[] = { "none",     /*0*/
@@ -216,6 +241,9 @@ uint64_t set_type_data(const std::pair<TYPE, uint64_t> data,
 #undef type
 #undef value
 }
+};/*end of namespace db_column*/
+
+using namespace db_column;
 
 namespace std
 {

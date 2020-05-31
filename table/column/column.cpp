@@ -1,7 +1,7 @@
 #include "column.h"
 
-using namespace db_col;
-
+namespace db_column
+{
 Column::Column(const TYPE type, const size_t reserve)
 	: _type{type}
 	, _data{std::move(std::vector<uint64_t>(reserve))}
@@ -106,7 +106,7 @@ void Column::push_back(const std::pair<TYPE, uint64_t> data)
 {
 #define type  first
 #define value second
-	if(flag_set(data.type) == false)
+	if(flags().set[data.type] == false)
 	{
 		return;
 	}
@@ -145,115 +145,12 @@ void Column::set_type_column(const TYPE type)
 		_data[i] = set_type_data({this->_type, _data[i]}, type);
 	}
 	this->_type = type;
-	set_flags_default(type);
+	_flags.set_default(type);
 }
 
 std::vector<uint64_t> Column::all_data() const
 {
 	return this->_data;
-}
-
-void Column::print_type_stdout() const
-{
-	std::cout << "type = " << this->_type;
-}
-
-void Column::print_all_stdout() const
-{
-	for (size_t i = 0, size = _data.size(); i < size; i++)
-	{
-		std::cout << '\t' << i << ": " << (*this)[i] << '\n';
-	}
-}
-
-void Column::print_flags_set_stdout() const
-{
-	std::cout << "flags_set:\n";
-	for(size_t i = 0; i <= ENUM_TYPE_SIZE; i++)
-	{
-		std::cout << "\t" << TYPE(i) << " = " << flag_set(TYPE(i)) << '\n';
-	}
-	std::cout << std::endl;
-}
-
-void Column::print_flags_add_stdout() const
-{
-	std::cout << "flags_add:\n";
-	for(size_t i = 0; i <= ENUM_TYPE_SIZE; i++)
-	{
-		std::cout << "\t" << TYPE(i) << " = " << flag_add(TYPE(i)) << '\n';
-	}
-	std::cout << std::endl;
-}
-
-void Column::print_flags_sub_stdout() const
-{
-	std::cout << "flags_sub:\n";
-	for(size_t i = 0; i <= ENUM_TYPE_SIZE; i++)
-	{
-		std::cout << "\t" << TYPE(i) << " = " << flag_sub(TYPE(i)) << '\n';
-	}
-	std::cout << std::endl;
-}
-
-void Column::print_flags_mul_stdout() const
-{
-	std::cout << "flags_mul:\n";
-	for(size_t i = 0; i <= ENUM_TYPE_SIZE; i++)
-	{
-		std::cout << "\t" << TYPE(i) << " = " << flag_mul(TYPE(i)) << '\n';
-	}
-	std::cout << std::endl;
-}
-
-void Column::print_flags_div_stdout() const
-{
-	std::cout << "flags_div:\n";
-	for(size_t i = 0; i <= ENUM_TYPE_SIZE; i++)
-	{
-		std::cout << "\t" << TYPE(i) << " = " << flag_div(TYPE(i)) << '\n';
-	}
-	std::cout << std::endl;
-}
-
-void Column::print_flags_equal_stdout() const
-{
-	std::cout << "flags_equal:\n";
-	for(size_t i = 0; i <= ENUM_TYPE_SIZE; i++)
-	{
-		std::cout << "\t" << TYPE(i) << " = " << flag_equal(TYPE(i)) << '\n';
-	}
-	std::cout << std::endl;
-}
-
-void Column::print_flags_less_stdout() const
-{
-	std::cout << "flags_less:\n";
-	for(size_t i = 0; i <= ENUM_TYPE_SIZE; i++)
-	{
-		std::cout << "\t" << TYPE(i) << " = " << flag_less(TYPE(i)) << '\n';
-	}
-	std::cout << std::endl;
-}
-
-void Column::print_flags_stdout() const
-{
-	print_flags_set_stdout();
-	print_flags_add_stdout();
-	print_flags_sub_stdout();
-	print_flags_mul_stdout();
-	print_flags_div_stdout();
-	print_flags_equal_stdout();
-	print_flags_less_stdout();
-}
-
-void Column::print_info_stdout() const
-{
-	print_type_stdout();
-	std::cout << '\n';
-	print_all_stdout();
-	print_flags_stdout();
-	std::cout << std::endl;
 }
 
 bool Column::check_size(const size_t pos) const
@@ -271,7 +168,7 @@ void Column::check_and_resize(const size_t pos)
 
 void Column::set(std::pair<TYPE, uint64_t> data, const size_t pos)
 {
-	if(flag_set(data.first) == false)
+	if(flags().set[data.first] == false)
 	{
 		return;
 	}
@@ -283,7 +180,7 @@ void Column::set(std::pair<TYPE, uint64_t> data, const size_t pos)
 
 void Column::add(std::pair<TYPE, uint64_t> data, const size_t pos)
 {
-	if(flag_add(data.first) == false)
+	if(flags().add[data.first] == false)
 	{
 		return;
 	}
@@ -295,7 +192,7 @@ void Column::add(std::pair<TYPE, uint64_t> data, const size_t pos)
 
 void Column::sub(std::pair<TYPE, uint64_t> data, const size_t pos)
 {
-	if((flag_sub(data.first) == false) ||
+	if((flags().sub[data.first] == false) ||
 	   (this->_type == TYPE::STRING))
 	{
 		return;
@@ -308,7 +205,7 @@ void Column::sub(std::pair<TYPE, uint64_t> data, const size_t pos)
 
 void Column::mul(std::pair<TYPE, uint64_t> data, const size_t pos)
 {
-	if((flag_mul(data.first) == false) ||
+	if((flags().mul[data.first] == false) ||
 	   (this->_type == TYPE::STRING))
 	{
 		return;
@@ -321,7 +218,7 @@ void Column::mul(std::pair<TYPE, uint64_t> data, const size_t pos)
 
 void Column::div(std::pair<TYPE, uint64_t> data, const size_t pos)
 {
-	if((flag_div(data.first) == false) ||
+	if((flags().div[data.first] == false) ||
 	   (this->_type == TYPE::STRING))
 	{
 		return;
@@ -334,7 +231,7 @@ void Column::div(std::pair<TYPE, uint64_t> data, const size_t pos)
 
 bool Column::equal(std::pair<TYPE, uint64_t> data, const size_t pos) const
 {
-	if((flag_equal(data.first) == false) ||
+	if((flags().equal[data.first] == false) ||
 	   (check_size(pos) == true))
 	{
 		return false;
@@ -350,7 +247,7 @@ bool Column::not_equal(std::pair<TYPE, uint64_t> data, const size_t pos) const
 
 bool Column::less(std::pair<TYPE, uint64_t> data, const size_t pos) const
 {
-	if((flag_less(data.first) == false) ||
+	if((flags().less[data.first] == false) ||
 	   (check_size(pos) == true))
 	{
 		return false;
@@ -362,7 +259,7 @@ bool Column::less(std::pair<TYPE, uint64_t> data, const size_t pos) const
 
 bool Column::more(std::pair<TYPE, uint64_t> data, const size_t pos) const
 {
-	if((flag_less(data.first) == false) ||
+	if((flags().less[data.first] == false) ||
 	   (check_size(pos) == true))
 	{
 		return false;
@@ -382,94 +279,19 @@ bool Column::more_or_equal(std::pair<TYPE, uint64_t> data, const size_t pos) con
 	return !(less(data, pos));
 }
 
-void Column::set_flags(const struct flags_column& flags)
-{
-	this->_flags = flags;
-}
-
-void Column::set_flags_default()
-{
-	set_flags(COLUMN_FLAGS_DEFAULT[static_cast<size_t>(this->type())]);
-}
-
-void Column::set_flags_default(const TYPE type)
-{
-	set_flags(COLUMN_FLAGS_DEFAULT[static_cast<size_t>(type)]);
-}
-
-void Column::set_flag_set(const std::pair<TYPE, bool> val)
-{
-	_flags.set[static_cast<size_t>(val.first)] = val.second;
-}
-
-void Column::set_flag_add(const std::pair<TYPE, bool> val)
-{
-	_flags.add[static_cast<size_t>(val.first)] = val.second;
-}
-
-void Column::set_flag_sub(const std::pair<TYPE, bool> val)
-{
-	_flags.sub[static_cast<size_t>(val.first)] = val.second;
-}
-
-void Column::set_flag_mul(const std::pair<TYPE, bool> val)
-{
-	_flags.mul[static_cast<size_t>(val.first)] = val.second;
-}
-
-void Column::set_flag_div(const std::pair<TYPE, bool> val)
-{
-	_flags.div[static_cast<size_t>(val.first)] = val.second;
-}
-
-void Column::set_flag_equal(const std::pair<TYPE, bool> val)
-{
-	_flags.equal[static_cast<size_t>(val.first)] = val.second;
-}
-
-void Column::set_flag_less(const std::pair<TYPE, bool> val)
-{
-	_flags.less[static_cast<size_t>(val.first)] = val.second;
-}
-
-const struct flags_column& Column::flags() const
+const struct Column::flags_column& Column::flags() const
 {
 	return _flags;
 }
 
-bool Column::flag_set(const TYPE type) const
+void Column::flags_column::set_all(const struct flags_column& flags)
 {
-	return _flags.set[static_cast<size_t>(type)];
+//	this->set = flags;
 }
 
-bool Column::flag_add(const TYPE type) const
+void Column::flags_column::set_default(const TYPE type)
 {
-	return _flags.add[static_cast<size_t>(type)];
-}
-
-bool Column::flag_sub(const TYPE type) const
-{
-	return _flags.sub[static_cast<size_t>(type)];
-}
-
-bool Column::flag_mul(const TYPE type) const
-{
-	return _flags.mul[static_cast<size_t>(type)];
-}
-
-bool Column::flag_div(const TYPE type) const
-{
-	return _flags.div[static_cast<size_t>(type)];
-}
-
-bool Column::flag_equal(const TYPE type) const
-{
-	return _flags.equal[static_cast<size_t>(type)];
-}
-
-bool Column::flag_less(const TYPE type) const
-{
-	return _flags.less[static_cast<size_t>(type)];
+	*this = COLUMN_FLAGS_DEFAULT[static_cast<size_t>(type)];
 }
 
 void Column::set_name(const std::string& name)
@@ -491,3 +313,5 @@ std::string Column::name() const
 {
 	return _name;
 }
+
+}/*end of namespace db_column*/

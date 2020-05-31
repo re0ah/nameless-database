@@ -1,17 +1,18 @@
 #pragma once
 #include "column/column.h"
-using namespace db_col;
 
+namespace db_table
+{
 class Table
 {
 	public:
 		Table(const std::string& name=std::string("Untitled"));
 		Table(const std::string&& name);
 
-		void new_column(const std::string& str, const TYPE type);
-		void new_column(const std::string&& str, const TYPE type);
-		void new_column(const Column& cl);
-		void new_column(const Column&& cl);
+		void new_column(const std::string& str, const db_column::TYPE type);
+		void new_column(const std::string&& str, const db_column::TYPE type);
+		void new_column(const db_column::Column& cl);
+		void new_column(const db_column::Column&& cl);
 
 		void print_column_element_stdout(const size_t index_column,
 										 const size_t index_element) const;
@@ -20,8 +21,15 @@ class Table
 
 		size_t size() const;
 
-		Column& operator[](const size_t index);
+		void save_file(const std::string& fname) const;
+		void save_file(const std::string&& fname) const;
+
+		void load_file(const std::string& fname);
+		void load_file(const std::string&& fname);
+
+		db_column::Column& operator[](const size_t index);
 	private:
-		std::vector<Column> _data;
+		std::vector<db_column::Column> _data;
 		std::string _name;
 };
+};/*end of namespace db_table*/

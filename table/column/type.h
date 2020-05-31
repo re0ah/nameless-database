@@ -1,9 +1,10 @@
 #pragma once
 #include <iostream>
-#include <string>
-#include <algorithm>
+#include <vector>
 #include "../../misc/misc.h"
 
+namespace db_column
+{
 enum class TYPE
 {
     NONE     = 0,
@@ -21,6 +22,16 @@ enum class TYPE
     STRING   = 12
 };      
 const size_t ENUM_TYPE_SIZE = static_cast<size_t>(TYPE::STRING);
+
+struct flag_type
+{
+		flag_type()=default;
+		flag_type(std::initializer_list<bool> list);
+		bool& operator[](const TYPE type);
+		const bool& operator[](const TYPE type) const;
+	private:
+		bool _data[16];
+};
         
 inline std::string type_to_string(const std::pair<TYPE, uint64_t> data)
 {
@@ -90,45 +101,46 @@ std::ostream& operator<< (std::ostream& os, const TYPE& type);
 			float, double -> transfer
 */
 uint64_t set_type_data(std::pair<TYPE, uint64_t> data, const TYPE type_will);
+}; /*end of namespace db_column*/
 
 namespace std
 {
 	template <>
-	struct pair <TYPE, uint64_t&>
+	struct pair <db_column::TYPE, uint64_t&>
 	{
-		TYPE first;
+		db_column::TYPE first;
 		uint64_t& second;
 
-		pair<TYPE, uint64_t&>& operator=(pair<TYPE, uint64_t>& rhs);
-		pair<TYPE, uint64_t&>& operator+=(pair<TYPE, uint64_t>& rhs);
-		pair<TYPE, uint64_t&>& operator+=(pair<TYPE, uint64_t>&& rhs);
+		pair<db_column::TYPE, uint64_t&>& operator=(pair<db_column::TYPE, uint64_t>& rhs);
+		pair<db_column::TYPE, uint64_t&>& operator+=(pair<db_column::TYPE, uint64_t>& rhs);
+		pair<db_column::TYPE, uint64_t&>& operator+=(pair<db_column::TYPE, uint64_t>&& rhs);
 
-		pair<TYPE, uint64_t&>& operator-=(pair<TYPE, uint64_t>& rhs);
-		pair<TYPE, uint64_t&>& operator-=(pair<TYPE, uint64_t>&& rhs);
+		pair<db_column::TYPE, uint64_t&>& operator-=(pair<db_column::TYPE, uint64_t>& rhs);
+		pair<db_column::TYPE, uint64_t&>& operator-=(pair<db_column::TYPE, uint64_t>&& rhs);
 
-		pair<TYPE, uint64_t&>& operator*=(pair<TYPE, uint64_t>& rhs);
-		pair<TYPE, uint64_t&>& operator*=(pair<TYPE, uint64_t>&& rhs);
+		pair<db_column::TYPE, uint64_t&>& operator*=(pair<db_column::TYPE, uint64_t>& rhs);
+		pair<db_column::TYPE, uint64_t&>& operator*=(pair<db_column::TYPE, uint64_t>&& rhs);
 
-		pair<TYPE, uint64_t&>& operator/=(pair<TYPE, uint64_t>& rhs);
-		pair<TYPE, uint64_t&>& operator/=(pair<TYPE, uint64_t>&& rhs);
+		pair<db_column::TYPE, uint64_t&>& operator/=(pair<db_column::TYPE, uint64_t>& rhs);
+		pair<db_column::TYPE, uint64_t&>& operator/=(pair<db_column::TYPE, uint64_t>&& rhs);
 	};
-bool operator==(pair<TYPE, uint64_t> lhs,
-				pair<TYPE, uint64_t> rhs);
+bool operator==(pair<db_column::TYPE, uint64_t> lhs,
+				pair<db_column::TYPE, uint64_t> rhs);
 
-bool operator!=(pair<TYPE, uint64_t> lhs,
-				pair<TYPE, uint64_t> rhs);
+bool operator!=(pair<db_column::TYPE, uint64_t> lhs,
+				pair<db_column::TYPE, uint64_t> rhs);
 
-bool operator< (pair<TYPE, uint64_t> lhs,
-				pair<TYPE, uint64_t> rhs);
+bool operator< (pair<db_column::TYPE, uint64_t> lhs,
+				pair<db_column::TYPE, uint64_t> rhs);
 
-bool operator> (pair<TYPE, uint64_t> lhs,
-				pair<TYPE, uint64_t> rhs);
+bool operator> (pair<db_column::TYPE, uint64_t> lhs,
+				pair<db_column::TYPE, uint64_t> rhs);
 
-bool operator<=(pair<TYPE, uint64_t> lhs,
-				pair<TYPE, uint64_t> rhs);
+bool operator<=(pair<db_column::TYPE, uint64_t> lhs,
+				pair<db_column::TYPE, uint64_t> rhs);
 
-bool operator>=(pair<TYPE, uint64_t> lhs,
-				pair<TYPE, uint64_t> rhs);
+bool operator>=(pair<db_column::TYPE, uint64_t> lhs,
+				pair<db_column::TYPE, uint64_t> rhs);
 };
 
-std::ostream& operator<< (std::ostream& os, const std::pair<TYPE, uint64_t>& data);
+std::ostream& operator<< (std::ostream& os, const std::pair<db_column::TYPE, uint64_t>& data);

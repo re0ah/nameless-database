@@ -1,5 +1,7 @@
 #include "table.h"
-using namespace db_col;
+
+using namespace db_column;
+using namespace db_table;
 
 Table::Table(const std::string& name)
 	: _name{name}
@@ -32,15 +34,15 @@ void Table::new_column(const Column&& cl)
 void Table::print_column_element_stdout(const size_t index_column,
 								 const size_t index_element) const
 {
-	std::cout << "Table: " << _name << ", "
+/*	std::cout << "Table: " << _name << ", "
 		      << "Column: " << _data[index_column].name() << '\n'
 			  << "value[" << index_element << "]: "
-			  << _data[index_column][index_element] << std::endl;
+			  << _data[index_column][index_element] << std::endl;*/
 }
 
 void Table::print_column_stdout(const size_t index_column) const
 {
-	std::cout << "Table: " << _name << ", "
+	/*std::cout << "Table: " << _name << ", "
 		      << "Column: " << _data[index_column].name() << ", "
 			  << "type: " << "\"" << _data[index_column].type() << "\", ";
 	const size_t column_size = _data[index_column].size();
@@ -53,12 +55,12 @@ void Table::print_column_stdout(const size_t index_column) const
 		std::cout << "elements[0-" << column_size - 1 << "]:\n";
 		_data[index_column].print_all_stdout();
 	}
-	std::cout << std::endl;
+	std::cout << std::endl;*/
 }
 
 void Table::print_all_column_stdout() const
 {
-	std::cout << "Table: " << _name << '\n';
+	/*std::cout << "Table: " << _name << '\n';
 	const size_t table_size = _data.size();
 	for(size_t i = 0; i < table_size; i++)
 	{
@@ -75,12 +77,17 @@ void Table::print_all_column_stdout() const
 			_data[i].print_all_stdout();
 		}
 	}
-	std::cout << std::endl;
+	std::cout << std::endl;*/
 }
 
 size_t Table::size() const
 {
 	return _data.size();
+}
+
+void Table::save_file(const std::string& fname) const
+{
+	
 }
 
 Column& Table::operator[](const size_t index)
