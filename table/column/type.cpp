@@ -217,271 +217,270 @@ uint64_t set_type_data(const std::pair<TYPE, uint64_t> data,
 #undef value
 }
 
-std::pair<TYPE, uint64_t&>& operator+=(std::pair<TYPE, uint64_t&>& lhs,
-									   std::pair<TYPE, uint64_t>& rhs)
+namespace std
 {
 #define type  first
 #define value second
-	if (lhs.type == rhs.type)
+pair<TYPE, uint64_t&>& pair<TYPE, uint64_t&>::operator=(pair<TYPE, uint64_t>& rhs)
+{
+	if (this->type == rhs.type)
 	{
-		if(lhs.type == TYPE::STRING)
+		if(this->type == TYPE::STRING)
 		{
-			std::string* this_str = (std::string*)lhs.value;
-			*this_str += *((std::string*)rhs.value);
-			return lhs;
+			string* this_str = (string*)this->value;
+			*this_str = *((string*)rhs.value);
+			return *this;
 		}
 	}
 	else
 	{
-		if(lhs.type == TYPE::STRING)
+		if(this->type == TYPE::STRING)
 		{
-			std::string* this_str = (std::string*)lhs.value;
-			*this_str += std::move(type_to_string(rhs));
-			return lhs;
+			string* this_str = (string*)this->value;
+			*this_str += move(type_to_string(rhs));
+			return *this;
 		}
-		rhs.value = set_type_data(rhs, lhs.type);
+		rhs.value = set_type_data(rhs, this->type);
 	}
 
-	switch(lhs.type)
+	this->value = rhs.value;
+	return *this;
+}
+
+pair<TYPE, uint64_t&>& pair<TYPE, uint64_t&>::operator+=(pair<TYPE, uint64_t>& rhs)
+{
+	if (this->type == rhs.type)
+	{
+		if(this->type == TYPE::STRING)
+		{
+			string* this_str = (string*)this->value;
+			*this_str += *((string*)rhs.value);
+			return *this;
+		}
+	}
+	else
+	{
+		if(this->type == TYPE::STRING)
+		{
+			string* this_str = (string*)this->value;
+			*this_str += move(type_to_string(rhs));
+			return *this;
+		}
+		rhs.value = set_type_data(rhs, this->type);
+	}
+
+	switch(this->type)
 	{
 		case TYPE::UINT8_T:
-			reinterpret_cast<uint8_t&>(lhs.value) += static_cast<uint8_t>(rhs.value);
+			reinterpret_cast<uint8_t&>(this->value) += static_cast<uint8_t>(rhs.value);
 			break;
 		case TYPE::INT8_T:
-			reinterpret_cast<int8_t&>(lhs.value) += static_cast<int8_t>(rhs.value);
+			reinterpret_cast<int8_t&>(this->value) += static_cast<int8_t>(rhs.value);
 			break;
 		case TYPE::UINT16_T:
-			reinterpret_cast<uint16_t&>(lhs.value) += static_cast<uint16_t>(rhs.value);
+			reinterpret_cast<uint16_t&>(this->value) += static_cast<uint16_t>(rhs.value);
 			break;
 		case TYPE::INT16_T:
-			reinterpret_cast<int16_t&>(lhs.value) += static_cast<int16_t>(rhs.value);
+			reinterpret_cast<int16_t&>(this->value) += static_cast<int16_t>(rhs.value);
 			break;
 		case TYPE::UINT32_T:
-			reinterpret_cast<uint32_t&>(lhs.value) += static_cast<uint32_t>(rhs.value);
+			reinterpret_cast<uint32_t&>(this->value) += static_cast<uint32_t>(rhs.value);
 			break;
 		case TYPE::INT32_T:
-			reinterpret_cast<int32_t&>(lhs.value) += static_cast<int32_t>(rhs.value);
+			reinterpret_cast<int32_t&>(this->value) += static_cast<int32_t>(rhs.value);
 			break;
 		case TYPE::UINT64_T:
-			reinterpret_cast<uint64_t&>(lhs.value) += static_cast<uint64_t>(rhs.value);
+			reinterpret_cast<uint64_t&>(this->value) += static_cast<uint64_t>(rhs.value);
 			break;
 		case TYPE::INT64_T:
-			reinterpret_cast<int64_t&>(lhs.value) += static_cast<int64_t>(rhs.value);
+			reinterpret_cast<int64_t&>(this->value) += static_cast<int64_t>(rhs.value);
 			break;
 		case TYPE::FLOAT:
-			reinterpret_cast<float&>(lhs.value) += reinterpret_cast<float&>(rhs.value);
+			reinterpret_cast<float&>(this->value) += reinterpret_cast<float&>(rhs.value);
 			break;
 		case TYPE::DOUBLE:
-			reinterpret_cast<double&>(lhs.value) += reinterpret_cast<double&>(rhs.value);
+			reinterpret_cast<double&>(this->value) += reinterpret_cast<double&>(rhs.value);
 			break;
 		default:
 			break;
 	}
-	return lhs;
-#undef type
-#undef value
+	return *this;
 }
 
-std::pair<TYPE, uint64_t&>& operator+=(std::pair<TYPE, uint64_t&>& lhs,
-                                       std::pair<TYPE, uint64_t>&& rhs)
+pair<TYPE, uint64_t&>& pair<TYPE, uint64_t&>::operator+=(pair<TYPE, uint64_t>&& rhs)
 {
-	return lhs += rhs;
+	return *this += rhs;
 }
 
-std::pair<TYPE, uint64_t&>& operator-=(std::pair<TYPE, uint64_t&>& lhs,
-									   std::pair<TYPE, uint64_t>& rhs)
+pair<TYPE, uint64_t&>& pair<TYPE, uint64_t&>::operator-=(pair<TYPE, uint64_t>& rhs)
 {
-#define type  first
-#define value second
-	if (lhs.type != rhs.type)
+	if (this->type != rhs.type)
 	{
-		rhs.value = set_type_data(rhs, lhs.type);
+		rhs.value = set_type_data(rhs, this->type);
 	}
 
-	switch(lhs.type)
+	switch(this->type)
 	{
 		case TYPE::UINT8_T:
-			reinterpret_cast<uint8_t&>(lhs.value) -= static_cast<uint8_t>(rhs.value);
+			reinterpret_cast<uint8_t&>(this->value) -= static_cast<uint8_t>(rhs.value);
 			break;
 		case TYPE::INT8_T:
-			reinterpret_cast<int8_t&>(lhs.value) -= static_cast<int8_t>(rhs.value);
+			reinterpret_cast<int8_t&>(this->value) -= static_cast<int8_t>(rhs.value);
 			break;
 		case TYPE::UINT16_T:
-			reinterpret_cast<uint16_t&>(lhs.value) -= static_cast<uint16_t>(rhs.value);
+			reinterpret_cast<uint16_t&>(this->value) -= static_cast<uint16_t>(rhs.value);
 			break;
 		case TYPE::INT16_T:
-			reinterpret_cast<int16_t&>(lhs.value) -= static_cast<int16_t>(rhs.value);
+			reinterpret_cast<int16_t&>(this->value) -= static_cast<int16_t>(rhs.value);
 			break;
 		case TYPE::UINT32_T:
-			reinterpret_cast<uint32_t&>(lhs.value) -= static_cast<uint32_t>(rhs.value);
+			reinterpret_cast<uint32_t&>(this->value) -= static_cast<uint32_t>(rhs.value);
 			break;
 		case TYPE::INT32_T:
-			reinterpret_cast<int32_t&>(lhs.value) -= static_cast<int32_t>(rhs.value);
+			reinterpret_cast<int32_t&>(this->value) -= static_cast<int32_t>(rhs.value);
 			break;
 		case TYPE::UINT64_T:
-			reinterpret_cast<uint64_t&>(lhs.value) -= static_cast<uint64_t>(rhs.value);
+			reinterpret_cast<uint64_t&>(this->value) -= static_cast<uint64_t>(rhs.value);
 			break;
 		case TYPE::INT64_T:
-			reinterpret_cast<int64_t&>(lhs.value) -= static_cast<int64_t>(rhs.value);
+			reinterpret_cast<int64_t&>(this->value) -= static_cast<int64_t>(rhs.value);
 			break;
 		case TYPE::FLOAT:
-			reinterpret_cast<float&>(lhs.value) -= reinterpret_cast<float&>(rhs.value);
+			reinterpret_cast<float&>(this->value) -= reinterpret_cast<float&>(rhs.value);
 			break;
 		case TYPE::DOUBLE:
-			reinterpret_cast<double&>(lhs.value) -= reinterpret_cast<double&>(rhs.value);
+			reinterpret_cast<double&>(this->value) -= reinterpret_cast<double&>(rhs.value);
 			break;
 		default:
 			break;
 	}
-	return lhs;
-#undef type
-#undef value
+	return *this;
 }
 
-std::pair<TYPE, uint64_t&>& operator-=(std::pair<TYPE, uint64_t&>& lhs,
-                                       std::pair<TYPE, uint64_t>&& rhs)
+pair<TYPE, uint64_t&>& pair<TYPE, uint64_t&>::operator-=(pair<TYPE, uint64_t>&& rhs)
 {
-	return lhs -= rhs;
+	return *this -= rhs;
 }
 
-std::pair<TYPE, uint64_t&>& operator*=(std::pair<TYPE, uint64_t&>& lhs,
-									   std::pair<TYPE, uint64_t>& rhs)
+pair<TYPE, uint64_t&>& pair<TYPE, uint64_t&>::operator*=(pair<TYPE, uint64_t>& rhs)
 {
-#define type  first
-#define value second
-	if (lhs.type != rhs.type)
+	if (this->type != rhs.type)
 	{
-		rhs.value = set_type_data(rhs, lhs.type);
+		rhs.value = set_type_data(rhs, this->type);
 	}
 
-	switch(lhs.type)
+	switch(this->type)
 	{
 		case TYPE::UINT8_T:
-			reinterpret_cast<uint8_t&>(lhs.value) *= static_cast<uint8_t>(rhs.value);
+			reinterpret_cast<uint8_t&>(this->value) *= static_cast<uint8_t>(rhs.value);
 			break;
 		case TYPE::INT8_T:
-			reinterpret_cast<int8_t&>(lhs.value) *= static_cast<int8_t>(rhs.value);
+			reinterpret_cast<int8_t&>(this->value) *= static_cast<int8_t>(rhs.value);
 			break;
 		case TYPE::UINT16_T:
-			reinterpret_cast<uint16_t&>(lhs.value) *= static_cast<uint16_t>(rhs.value);
+			reinterpret_cast<uint16_t&>(this->value) *= static_cast<uint16_t>(rhs.value);
 			break;
 		case TYPE::INT16_T:
-			reinterpret_cast<int16_t&>(lhs.value) *= static_cast<int16_t>(rhs.value);
+			reinterpret_cast<int16_t&>(this->value) *= static_cast<int16_t>(rhs.value);
 			break;
 		case TYPE::UINT32_T:
-			reinterpret_cast<uint32_t&>(lhs.value) *= static_cast<uint32_t>(rhs.value);
+			reinterpret_cast<uint32_t&>(this->value) *= static_cast<uint32_t>(rhs.value);
 			break;
 		case TYPE::INT32_T:
-			reinterpret_cast<int32_t&>(lhs.value) *= static_cast<int32_t>(rhs.value);
+			reinterpret_cast<int32_t&>(this->value) *= static_cast<int32_t>(rhs.value);
 			break;
 		case TYPE::UINT64_T:
-			reinterpret_cast<uint64_t&>(lhs.value) *= static_cast<uint64_t>(rhs.value);
+			reinterpret_cast<uint64_t&>(this->value) *= static_cast<uint64_t>(rhs.value);
 			break;
 		case TYPE::INT64_T:
-			reinterpret_cast<int64_t&>(lhs.value) *= static_cast<int64_t>(rhs.value);
+			reinterpret_cast<int64_t&>(this->value) *= static_cast<int64_t>(rhs.value);
 			break;
 		case TYPE::FLOAT:
-			reinterpret_cast<float&>(lhs.value) *= reinterpret_cast<float&>(rhs.value);
+			reinterpret_cast<float&>(this->value) *= reinterpret_cast<float&>(rhs.value);
 			break;
 		case TYPE::DOUBLE:
-			reinterpret_cast<double&>(lhs.value) *= reinterpret_cast<double&>(rhs.value);
+			reinterpret_cast<double&>(this->value) *= reinterpret_cast<double&>(rhs.value);
 			break;
 		default:
 			break;
 	}
-	return lhs;
-#undef type
-#undef value
+	return *this;
 }
 
-std::pair<TYPE, uint64_t&>& operator*=(std::pair<TYPE, uint64_t&>& lhs,
-                                       std::pair<TYPE, uint64_t>&& rhs)
+pair<TYPE, uint64_t&>& pair<TYPE, uint64_t&>::operator*=(pair<TYPE, uint64_t>&& rhs)
 {
-	return lhs *= rhs;
+	return *this *= rhs;
 }
 
-std::pair<TYPE, uint64_t&>& operator/=(std::pair<TYPE, uint64_t&>& lhs,
-									   std::pair<TYPE, uint64_t>& rhs)
+pair<TYPE, uint64_t&>& pair<TYPE, uint64_t&>::operator/=(pair<TYPE, uint64_t>& rhs)
 {
-#define type  first
-#define value second
-	if (lhs.type != rhs.type)
+	if (this->type != rhs.type)
 	{
-		rhs.value = set_type_data(rhs, lhs.type);
+		rhs.value = set_type_data(rhs, this->type);
 	}
 
-	switch(lhs.type)
+	switch(this->type)
 	{
 		case TYPE::UINT8_T:
-			reinterpret_cast<uint8_t&>(lhs.value) /= static_cast<uint8_t>(rhs.value);
+			reinterpret_cast<uint8_t&>(this->value) /= static_cast<uint8_t>(rhs.value);
 			break;
 		case TYPE::INT8_T:
-			reinterpret_cast<int8_t&>(lhs.value) /= static_cast<int8_t>(rhs.value);
+			reinterpret_cast<int8_t&>(this->value) /= static_cast<int8_t>(rhs.value);
 			break;
 		case TYPE::UINT16_T:
-			reinterpret_cast<uint16_t&>(lhs.value) /= static_cast<uint16_t>(rhs.value);
+			reinterpret_cast<uint16_t&>(this->value) /= static_cast<uint16_t>(rhs.value);
 			break;
 		case TYPE::INT16_T:
-			reinterpret_cast<int16_t&>(lhs.value) /= static_cast<int16_t>(rhs.value);
+			reinterpret_cast<int16_t&>(this->value) /= static_cast<int16_t>(rhs.value);
 			break;
 		case TYPE::UINT32_T:
-			reinterpret_cast<uint32_t&>(lhs.value) /= static_cast<uint32_t>(rhs.value);
+			reinterpret_cast<uint32_t&>(this->value) /= static_cast<uint32_t>(rhs.value);
 			break;
 		case TYPE::INT32_T:
-			reinterpret_cast<int32_t&>(lhs.value) /= static_cast<int32_t>(rhs.value);
+			reinterpret_cast<int32_t&>(this->value) /= static_cast<int32_t>(rhs.value);
 			break;
 		case TYPE::UINT64_T:
-			reinterpret_cast<uint64_t&>(lhs.value) /= static_cast<uint64_t>(rhs.value);
+			reinterpret_cast<uint64_t&>(this->value) /= static_cast<uint64_t>(rhs.value);
 			break;
 		case TYPE::INT64_T:
-			reinterpret_cast<int64_t&>(lhs.value) /= static_cast<int64_t>(rhs.value);
+			reinterpret_cast<int64_t&>(this->value) /= static_cast<int64_t>(rhs.value);
 			break;
 		case TYPE::FLOAT:
-			reinterpret_cast<float&>(lhs.value) /= reinterpret_cast<float&>(rhs.value);
+			reinterpret_cast<float&>(this->value) /= reinterpret_cast<float&>(rhs.value);
 			break;
 		case TYPE::DOUBLE:
-			reinterpret_cast<double&>(lhs.value) /= reinterpret_cast<double&>(rhs.value);
+			reinterpret_cast<double&>(this->value) /= reinterpret_cast<double&>(rhs.value);
 			break;
 		default:
 			break;
 	}
-	return lhs;
-#undef type
-#undef value
+	return *this;
 }
 
-std::pair<TYPE, uint64_t&>& operator/=(std::pair<TYPE, uint64_t&>& lhs,
-                                       std::pair<TYPE, uint64_t>&& rhs)
+pair<TYPE, uint64_t&>& pair<TYPE, uint64_t&>::operator/=(pair<TYPE, uint64_t>&& rhs)
 {
-	return lhs /= rhs;
+	return *this /= rhs;
 }
 
-bool operator==(std::pair<TYPE, uint64_t> lhs,
-                std::pair<TYPE, uint64_t> rhs)
+bool operator==(pair<TYPE, uint64_t> lhs,
+				pair<TYPE, uint64_t> rhs)
 {
-#define type  first
-#define value second
 	if (lhs.type == rhs.type)
     {
         if(lhs.type == TYPE::STRING)
         {
-            std::string* this_str = (std::string*)lhs.value;
-            return (*this_str == *((std::string*)rhs.value));
-		std::cout << "test5" << std::endl;
+            string* this_str = (string*)lhs.value;
+            return (*this_str == *((string*)rhs.value));
         }
-		std::cout << "test4" << std::endl;
     }
     else
     {
         if(lhs.type == TYPE::STRING)
         {
-		std::cout << "test3" << std::endl;
             return false;
         }
-		std::cout << "test2" << std::endl;
         rhs.value = set_type_data(rhs, lhs.type);
     }
-	std::cout << "test" << std::endl;
 
     switch(lhs.type)
     {
@@ -510,27 +509,23 @@ bool operator==(std::pair<TYPE, uint64_t> lhs,
         default:
             return false;
     }
-#undef type
-#undef value
 }
 
-bool operator!=(std::pair<TYPE, uint64_t> lhs,
-                std::pair<TYPE, uint64_t> rhs)
+bool operator!=(pair<TYPE, uint64_t> lhs,
+				pair<TYPE, uint64_t> rhs)
 {
 	return !(lhs == rhs);
 }
 
-bool operator<(std::pair<TYPE, uint64_t> lhs,
-               std::pair<TYPE, uint64_t> rhs)
+bool operator<(pair<TYPE, uint64_t> lhs,
+			   pair<TYPE, uint64_t> rhs)
 {
-#define type  first
-#define value second
 	if (lhs.type == rhs.type)
     {
         if(lhs.type == TYPE::STRING)
         {
-            std::string* this_str = (std::string*)lhs.value;
-			return (this_str->size() < (((std::string*)rhs.value)->size()));
+            string* this_str = (string*)lhs.value;
+			return (this_str->size() < (((string*)rhs.value)->size()));
         }
     }
     else
@@ -569,21 +564,17 @@ bool operator<(std::pair<TYPE, uint64_t> lhs,
         default:
             return false;
     }
-#undef type
-#undef value
 }
 
-bool operator>(std::pair<TYPE, uint64_t> lhs,
-               std::pair<TYPE, uint64_t> rhs)
+bool operator>(pair<TYPE, uint64_t> lhs,
+			   pair<TYPE, uint64_t> rhs)
 {
-#define type  first
-#define value second
 	if (lhs.type == rhs.type)
     {
         if(lhs.type == TYPE::STRING)
         {
-            std::string* this_str = (std::string*)lhs.value;
-			return (this_str->size() > (((std::string*)rhs.value)->size()));
+            string* this_str = (string*)lhs.value;
+			return (this_str->size() > (((string*)rhs.value)->size()));
         }
     }
     else
@@ -622,22 +613,23 @@ bool operator>(std::pair<TYPE, uint64_t> lhs,
         default:
             return false;
     }
-#undef type
-#undef value
 }
 
-bool operator<=(std::pair<TYPE, uint64_t> lhs,
-               std::pair<TYPE, uint64_t> rhs)
+bool operator<=(pair<TYPE, uint64_t> lhs,
+				pair<TYPE, uint64_t> rhs)
 {
 	return !(lhs > rhs);
 }
 
-bool operator>=(std::pair<TYPE, uint64_t> lhs,
-               std::pair<TYPE, uint64_t> rhs)
+bool operator>=(pair<TYPE, uint64_t> lhs,
+				pair<TYPE, uint64_t> rhs)
 {
 	return !(lhs < rhs);
 }
 
+#undef type
+#undef value
+}; /*end of namespace std*/
 std::ostream& operator<< (std::ostream& os, const std::pair<TYPE, uint64_t>& data)
 {
 #define type  first

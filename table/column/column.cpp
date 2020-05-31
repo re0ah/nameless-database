@@ -13,19 +13,23 @@ Column::Column(const std::string& name,
 			   const TYPE type,
 			   const size_t reserve)
 	: _type{type}
-	, _data{std::move(std::vector<uint64_t>(reserve))}
+	, _data{std::move(std::vector<uint64_t>())}
 	, _flags{COLUMN_FLAGS_DEFAULT[static_cast<size_t>(type)]}
 	, _name{name}
-{}
+{
+	_data.reserve(reserve);
+}
 
 Column::Column(const std::string&& name,
 			   const TYPE type,
 			   const size_t reserve)
 	: _type{type}
-	, _data{std::move(std::vector<uint64_t>(reserve))}
+	, _data{std::move(std::vector<uint64_t>())}
 	, _flags{COLUMN_FLAGS_DEFAULT[static_cast<size_t>(type)]}
 	, _name{std::move(name)}
-{}
+{
+	_data.reserve(reserve);
+}
 
 Column::Column(const Column& col)
 	: _type{col.type()}
@@ -132,7 +136,6 @@ void Column::push_back(const std::pair<TYPE, uint64_t> data)
 void Column::resize(const size_t size)
 {
 	_data.resize(size, 0);
-	std::cout << "resize: " << _data.size() << std::endl;
 }
 
 void Column::set_type_column(const TYPE type)
@@ -268,37 +271,14 @@ void Column::check_and_resize(const size_t pos)
 
 void Column::set(std::pair<TYPE, uint64_t> data, const size_t pos)
 {
-#define type  first
-#define value second
-	if(flag_set(data.type) == false)
+	if(flag_set(data.first) == false)
 	{
 		return;
 	}
 	check_and_resize(pos);
 
-	if (this->_type == data.type)
-	{
-		if(this->_type == TYPE::STRING)
-		{
-			std::string* this_str = (std::string*)this->_data[pos];
-			*this_str = *((std::string*)data.value);
-			return;
-		}
-	}
-	else
-	{
-		if(this->_type == TYPE::STRING)
-		{
-			std::string* this_str = (std::string*)this->_data[pos];
-			*this_str = std::move(type_to_string(data));
-			return;
-		}
-		data.value = set_type_data(data, this->_type);
-	}
-
-	_data[pos] = data.value;
-#undef type
-#undef value
+	std::pair<TYPE, uint64_t&> this_pair(this->type(), this->_data[pos]);
+	this_pair = data;
 }
 
 void Column::add(std::pair<TYPE, uint64_t> data, const size_t pos)
