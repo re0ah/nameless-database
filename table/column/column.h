@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <bitset>
 #include "type.h"
 
@@ -28,18 +28,18 @@ class Column
 
 		Column(const TYPE type=TYPE::NONE,
 			   const size_t reserve=16);
-		Column(const std::string& name,
+        Column(const QString& name,
 			   const TYPE type=TYPE::NONE,
 			   const size_t reserve=16);
-		Column(const std::string&& name,
+        Column(const QString&& name,
 			   const TYPE type=TYPE::NONE,
 			   const size_t reserve=16);
 		Column(const Column& col);
-		Column(const Column&& col);
+        Column(Column&& col);
 		~Column();
 		void swap(Column& lhs, Column& rhs);
 		Column& operator=(Column col);
-		Column& operator=(const Column&& col);
+        Column& operator=(Column&& col);
 		std::pair<TYPE, uint64_t&> operator[](const size_t index);
 		const std::pair<TYPE, uint64_t> operator[](const size_t index) const;
 		TYPE type() const;
@@ -67,18 +67,20 @@ class Column
 		bool less_or_equal(std::pair<TYPE, uint64_t> data, const size_t pos) const;
 		bool more_or_equal(std::pair<TYPE, uint64_t> data, const size_t pos) const;
 		
-		const struct flags_column& flags() const;
+        struct flags_column& flags();
 
-		void set_name(const std::string& name);
-		void set_name(const std::string&& name);
-		void set_name(const char* const name);
+        TIME_TYPE& flag_time();
 
-		std::string name() const;
+        void set_name(const QString& name);
+        void set_name(const QString&& name);
+        void set_name(const char* const name);
+        QString name() const;
 	private:
-		TYPE _type;
+        TYPE _type;
 		std::vector<uint64_t> _data;
 		struct flags_column _flags;
-		std::string _name;
+        QString _fmt;
+        QString _name;
 };
 const struct Column::flags_column COLUMN_FLAGS_DEFAULT_NONE = {/*
 |--------------------------------------------------------------------------|
@@ -89,7 +91,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_NONE = {/*
 |-set|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-set|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
 |-set|-----------|----------|----------|----------|----------|----------|--|
-|-set|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-set|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-set|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -101,7 +103,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_NONE = {/*
 |-add|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-add|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
 |-add|-----------|----------|----------|----------|----------|----------|--|
-|-add|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-add|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-add|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -113,7 +115,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_NONE = {/*
 |-sub|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-sub|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
 |-sub|-----------|----------|----------|----------|----------|----------|--|
-|-sub|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-sub|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-sub|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -125,7 +127,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_NONE = {/*
 |-mul|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-mul|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
 |-mul|-----------|----------|----------|----------|----------|----------|--|
-|-mul|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-mul|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-mul|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -137,7 +139,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_NONE = {/*
 |-div|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-div|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
 |-div|-----------|----------|----------|----------|----------|----------|--|
-|-div|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-div|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-div|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -149,7 +151,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_NONE = {/*
 |-eq-|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-eq-|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
 |-eq-|-----------|----------|----------|----------|----------|----------|--|
-|-eq-|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-eq-|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-eq-|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -161,7 +163,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_NONE = {/*
 |less|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |less|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
 |less|-----------|----------|----------|----------|----------|----------|--|
-|less|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|less|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |less|*/ false   ,   false  ,   false  ,   false} /*         |          |  |
 |--------------------------------------------------------------------------|
 */};
@@ -175,7 +177,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_BOOL = {/*
 |-set|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-set|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
 |-set|-----------|----------|----------|----------|----------|----------|--|
-|-set|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-set|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-set|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -187,7 +189,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_BOOL = {/*
 |-add|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-add|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
 |-add|-----------|----------|----------|----------|----------|----------|--|
-|-add|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-add|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-add|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -199,7 +201,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_BOOL = {/*
 |-sub|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-sub|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
 |-sub|-----------|----------|----------|----------|----------|----------|--|
-|-sub|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-sub|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-sub|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -211,7 +213,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_BOOL = {/*
 |-mul|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-mul|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
 |-mul|-----------|----------|----------|----------|----------|----------|--|
-|-mul|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-mul|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-mul|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -223,7 +225,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_BOOL = {/*
 |-div|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-div|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
 |-div|-----------|----------|----------|----------|----------|----------|--|
-|-div|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-div|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-div|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -235,7 +237,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_BOOL = {/*
 |-eq-|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-eq-|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
 |-eq-|-----------|----------|----------|----------|----------|----------|--|
-|-eq-|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-eq-|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-eq-|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -247,7 +249,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_BOOL = {/*
 |less|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |less|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
 |less|-----------|----------|----------|----------|----------|----------|--|
-|less|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|less|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |less|*/ false   ,   false  ,   false  ,   false} /*         |          |  |
 |--------------------------------------------------------------------------|
 */};
@@ -261,7 +263,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_UINT8_T = {/*
 |-set|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-set|*/ true    ,   true   ,   true   ,   true   ,   false  ,  false,  /* |
 |-set|-----------|----------|----------|----------|----------|----------|--|
-|-set|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-set|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-set|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -273,7 +275,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_UINT8_T = {/*
 |-add|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-add|*/ true    ,   true   ,   true   ,   true   ,   false  ,  false,  /* |
 |-add|-----------|----------|----------|----------|----------|----------|--|
-|-add|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-add|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-add|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -285,7 +287,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_UINT8_T = {/*
 |-sub|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-sub|*/ true    ,   true   ,   true   ,   true   ,   false  ,  false,  /* |
 |-sub|-----------|----------|----------|----------|----------|----------|--|
-|-sub|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-sub|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-sub|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -297,7 +299,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_UINT8_T = {/*
 |-mul|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-mul|*/ true    ,   true   ,   true   ,   true   ,   false  ,  false,  /* |
 |-mul|-----------|----------|----------|----------|----------|----------|--|
-|-mul|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-mul|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-mul|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -309,7 +311,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_UINT8_T = {/*
 |-div|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-div|*/ true    ,   true   ,   true   ,   true   ,   false  ,  false,  /* |
 |-div|-----------|----------|----------|----------|----------|----------|--|
-|-div|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-div|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-div|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -321,7 +323,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_UINT8_T = {/*
 |-eq-|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-eq-|*/ true    ,   true   ,   true   ,   true   ,   false  ,  false,  /* |
 |-eq-|-----------|----------|----------|----------|----------|----------|--|
-|-eq-|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-eq-|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-eq-|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -333,7 +335,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_UINT8_T = {/*
 |less|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |less|*/ true    ,   true   ,   true   ,   true   ,   false  ,  false,  /* |
 |less|-----------|----------|----------|----------|----------|----------|--|
-|less|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|less|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |less|*/ false   ,   false  ,   false  ,   false} /*         |          |  |
 |--------------------------------------------------------------------------|
 */};
@@ -361,7 +363,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_FLOAT = {/*
 |-set|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-set|*/ true    ,   true   ,   true   ,   true   ,   true   ,  true,  /* |
 |-set|-----------|----------|----------|----------|----------|----------|--|
-|-set|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-set|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-set|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -373,7 +375,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_FLOAT = {/*
 |-add|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-add|*/ true    ,   true   ,   true   ,   true   ,   true   ,  true,  /* |
 |-add|-----------|----------|----------|----------|----------|----------|--|
-|-add|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-add|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-add|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -385,7 +387,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_FLOAT = {/*
 |-sub|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-sub|*/ true    ,   true   ,   true   ,   true   ,   true   ,  true,  /* |
 |-sub|-----------|----------|----------|----------|----------|----------|--|
-|-sub|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-sub|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-sub|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -397,7 +399,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_FLOAT = {/*
 |-mul|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-mul|*/ true    ,   true   ,   true   ,   true   ,   true   ,  true,  /* |
 |-mul|-----------|----------|----------|----------|----------|----------|--|
-|-mul|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-mul|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-mul|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -409,7 +411,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_FLOAT = {/*
 |-div|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-div|*/ true    ,   true   ,   true   ,   true   ,   true   ,  true,   /* |
 |-div|-----------|----------|----------|----------|----------|----------|--|
-|-div|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-div|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-div|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -421,7 +423,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_FLOAT = {/*
 |-eq-|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-eq-|*/ true    ,   true   ,   true   ,   true   ,   true   ,  true,   /* |
 |-eq-|-----------|----------|----------|----------|----------|----------|--|
-|-eq-|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-eq-|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-eq-|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -433,7 +435,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_FLOAT = {/*
 |less|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |less|*/ true    ,   true   ,   true   ,   true   ,   true   ,  true,   /* |
 |less|-----------|----------|----------|----------|----------|----------|--|
-|less|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|less|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |less|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 */};
@@ -449,7 +451,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_STRING = {/*
 |-set|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-set|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
 |-set|-----------|----------|----------|----------|----------|----------|--|
-|-set|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-set|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-set|*/ true    ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -461,7 +463,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_STRING = {/*
 |-add|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-add|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
 |-add|-----------|----------|----------|----------|----------|----------|--|
-|-add|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-add|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-add|*/ true    ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -473,7 +475,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_STRING = {/*
 |-sub|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-sub|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
 |-sub|-----------|----------|----------|----------|----------|----------|--|
-|-sub|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-sub|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-sub|*/ true    ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -485,7 +487,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_STRING = {/*
 |-mul|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-mul|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
 |-mul|-----------|----------|----------|----------|----------|----------|--|
-|-mul|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-mul|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-mul|*/ true    ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -497,7 +499,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_STRING = {/*
 |-div|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-div|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
 |-div|-----------|----------|----------|----------|----------|----------|--|
-|-div|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-div|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-div|*/ true    ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -509,7 +511,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_STRING = {/*
 |-eq-|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |-eq-|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
 |-eq-|-----------|----------|----------|----------|----------|----------|--|
-|-eq-|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|-eq-|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |-eq-|*/ true    ,   false  ,   false  ,   false},/*         |          |  |
 |--------------------------------------------------------------------------|
 
@@ -521,8 +523,94 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT_STRING = {/*
 |less|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
 |less|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
 |less|-----------|----------|----------|----------|----------|----------|--|
-|less|   STRING  |   RESRV  |   RESRV  |   RESRV  |          |          |  |
+|less|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
 |less|*/ true    ,   false  ,   false  ,   false} /*         |          |  |
+|--------------------------------------------------------------------------|
+*/};
+
+const struct Column::flags_column COLUMN_FLAGS_DEFAULT_TIME = {/*
+|--------------------------------------------------------------------------|
+|-set|------------------------------------------------------------------|--|
+|-set|    NONE   |   BOOL   |    U8T   |    S8T   |   U16T   |   S16T   |  |
+|-set|*/{false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
+|-set|-----------|----------|----------|----------|----------|----------|--|
+|-set|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
+|-set|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
+|-set|-----------|----------|----------|----------|----------|----------|--|
+|-set|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
+|-set|*/ false   ,   true   ,   false  ,   false},/*         |          |  |
+|--------------------------------------------------------------------------|
+
+|--------------------------------------------------------------------------|
+|-add|------------------------------------------------------------------|--|
+|-add|    NONE   |   BOOL   |    U8T   |    S8T   |   U16T   |   S16T   |  |
+|-add|*/{false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
+|-add|-----------|----------|----------|----------|----------|----------|--|
+|-add|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
+|-add|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
+|-add|-----------|----------|----------|----------|----------|----------|--|
+|-add|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
+|-add|*/ false   ,   true   ,   false  ,   false},/*         |          |  |
+|--------------------------------------------------------------------------|
+
+|--------------------------------------------------------------------------|
+|-sub|------------------------------------------------------------------|--|
+|-sub|    NONE   |   BOOL   |    U8T   |    S8T   |   U16T   |   S16T   |  |
+|-sub|*/{false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
+|-sub|-----------|----------|----------|----------|----------|----------|--|
+|-sub|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
+|-sub|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
+|-sub|-----------|----------|----------|----------|----------|----------|--|
+|-sub|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
+|-sub|*/ false   ,   true   ,   false  ,   false},/*         |          |  |
+|--------------------------------------------------------------------------|
+
+|--------------------------------------------------------------------------|
+|-mul|------------------------------------------------------------------|--|
+|-mul|    NONE   |   BOOL   |    U8T   |    S8T   |   U16T   |   S16T   |  |
+|-mul|*/{false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
+|-mul|-----------|----------|----------|----------|----------|----------|--|
+|-mul|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
+|-mul|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
+|-mul|-----------|----------|----------|----------|----------|----------|--|
+|-mul|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
+|-mul|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
+|--------------------------------------------------------------------------|
+
+|--------------------------------------------------------------------------|
+|-div|------------------------------------------------------------------|--|
+|-div|    NONE   |   BOOL   |    U8T   |    S8T   |   U16T   |   S16T   |  |
+|-div|*/{false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
+|-div|-----------|----------|----------|----------|----------|----------|--|
+|-div|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
+|-div|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
+|-div|-----------|----------|----------|----------|----------|----------|--|
+|-div|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
+|-div|*/ false   ,   false  ,   false  ,   false},/*         |          |  |
+|--------------------------------------------------------------------------|
+
+|--------------------------------------------------------------------------|
+|-eq-|------------------------------------------------------------------|--|
+|-eq-|    NONE   |   BOOL   |    U8T   |    S8T   |   U16T   |   S16T   |  |
+|-eq-|*/{false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
+|-eq-|-----------|----------|----------|----------|----------|----------|--|
+|-eq-|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
+|-eq-|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
+|-eq-|-----------|----------|----------|----------|----------|----------|--|
+|-eq-|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
+|-eq-|*/ false   ,   true   ,   false  ,   false},/*         |          |  |
+|--------------------------------------------------------------------------|
+
+|--------------------------------------------------------------------------|
+|less|------------------------------------------------------------------|--|
+|less|    NONE   |   BOOL   |    U8T   |    S8T   |   U16T   |   S16T   |  |
+|less|*/{false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
+|less|-----------|----------|----------|----------|----------|----------|--|
+|less|    U32T   |   S32T   |   U64T   |   S64T   |   FLOAT  |  DOUBLE  |  |
+|less|*/ false   ,   false  ,   false  ,   false  ,   false  ,  false,  /* |
+|less|-----------|----------|----------|----------|----------|----------|--|
+|less|   STRING  |   TIME   |   RESRV  |   RESRV  |          |          |  |
+|less|*/ false   ,   true   ,   false  ,   false} /*         |          |  |
 |--------------------------------------------------------------------------|
 */};
 
@@ -539,6 +627,7 @@ const struct Column::flags_column COLUMN_FLAGS_DEFAULT[] = {
 									 COLUMN_FLAGS_DEFAULT_INT64_T,
 									 COLUMN_FLAGS_DEFAULT_FLOAT,
 									 COLUMN_FLAGS_DEFAULT_DOUBLE,
-									 COLUMN_FLAGS_DEFAULT_STRING
+                                     COLUMN_FLAGS_DEFAULT_STRING,
+                                     COLUMN_FLAGS_DEFAULT_TIME
 };
 }/*end of namespace*/

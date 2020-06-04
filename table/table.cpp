@@ -1,29 +1,30 @@
-#include "table.h"
+﻿#include "table.h"
 
 using namespace db_column;
-using namespace db_table;
 
-Table::Table(const std::string& name)
+namespace db_table
+{
+Table::Table(const QString& name)
 	: _name{name}
 {}
 
-Table::Table(const std::string&& name)
+Table::Table(const QString&& name)
 	: _name{std::move(name)}
 {}
 
-void Table::new_column(const std::string& str, const TYPE type)
+void Table::new_column(const QString& str, const TYPE type)
 {
-	_data.push_back(std::move(Column(str, type)));
+    _data.push_back(Column(str, type));
 }
 
-void Table::new_column(const std::string&& str, const TYPE type)
+void Table::new_column(const QString&& str, const TYPE type)
 {
-	_data.push_back(std::move(Column(std::move(str), type)));
+    _data.push_back(Column(std::move(str), type));
 }
 
 void Table::new_column(const Column& cl)
 {
-	_data.push_back(std::move(Column(cl)));
+    _data.push_back(Column(cl));
 }
 
 void Table::new_column(const Column&& cl)
@@ -31,61 +32,12 @@ void Table::new_column(const Column&& cl)
 	_data.push_back(std::move(cl));
 }
 
-void Table::print_column_element_stdout(const size_t index_column,
-								 const size_t index_element) const
-{
-/*	std::cout << "Table: " << _name << ", "
-		      << "Column: " << _data[index_column].name() << '\n'
-			  << "value[" << index_element << "]: "
-			  << _data[index_column][index_element] << std::endl;*/
-}
-
-void Table::print_column_stdout(const size_t index_column) const
-{
-	/*std::cout << "Table: " << _name << ", "
-		      << "Column: " << _data[index_column].name() << ", "
-			  << "type: " << "\"" << _data[index_column].type() << "\", ";
-	const size_t column_size = _data[index_column].size();
-	if (column_size == 0)
-	{
-		std::cout << "column is empty";
-	}
-	else
-	{
-		std::cout << "elements[0-" << column_size - 1 << "]:\n";
-		_data[index_column].print_all_stdout();
-	}
-	std::cout << std::endl;*/
-}
-
-void Table::print_all_column_stdout() const
-{
-	/*std::cout << "Table: " << _name << '\n';
-	const size_t table_size = _data.size();
-	for(size_t i = 0; i < table_size; i++)
-	{
-		const size_t column_size = _data[i].size();
-		std::cout << "Column[" << i << "] \"" << _data[i].name() << "\", "
-				  << "type: " << "\"" << _data[i].type() << "\", ";
-		if (column_size == 0)
-		{
-			std::cout << "column is empty\n";
-		}
-		else
-		{
-			std::cout << "elements[0-" << column_size - 1 << "]:\n";
-			_data[i].print_all_stdout();
-		}
-	}
-	std::cout << std::endl;*/
-}
-
 size_t Table::size() const
 {
 	return _data.size();
 }
 
-void Table::save_file(const std::string& fname) const
+void Table::save_file(const QString& fname) const
 {
 	
 }
@@ -94,3 +46,4 @@ Column& Table::operator[](const size_t index)
 {
 	return _data[index];
 }
+};/*end of namespace db_table*/

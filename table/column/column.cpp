@@ -1,30 +1,30 @@
-#include "column.h"
+﻿#include "column.h"
 
 namespace db_column
 {
 Column::Column(const TYPE type, const size_t reserve)
 	: _type{type}
-	, _data{std::move(std::vector<uint64_t>(reserve))}
+    , _data{std::vector<uint64_t>(reserve)}
 	, _flags{COLUMN_FLAGS_DEFAULT_NONE}
-	, _name{std::move(std::string("Untitled"))}
+    , _name{QString("Untitled")}
 {}
 
-Column::Column(const std::string& name,
+Column::Column(const QString& name,
 			   const TYPE type,
 			   const size_t reserve)
 	: _type{type}
-	, _data{std::move(std::vector<uint64_t>())}
+    , _data{std::vector<uint64_t>()}
 	, _flags{COLUMN_FLAGS_DEFAULT[static_cast<size_t>(type)]}
 	, _name{name}
 {
 	_data.reserve(reserve);
 }
 
-Column::Column(const std::string&& name,
+Column::Column(const QString&& name,
 			   const TYPE type,
 			   const size_t reserve)
 	: _type{type}
-	, _data{std::move(std::vector<uint64_t>())}
+    , _data{std::vector<uint64_t>()}
 	, _flags{COLUMN_FLAGS_DEFAULT[static_cast<size_t>(type)]}
 	, _name{std::move(name)}
 {
@@ -38,7 +38,7 @@ Column::Column(const Column& col)
 	, _name{col._name}
 {}
 
-Column::Column(const Column&& col)
+Column::Column(Column&& col)
 	: _type{col.type()}
 	, _data{std::move(col._data)}
 	, _flags{std::move(col._flags)}
@@ -51,7 +51,7 @@ Column::~Column()
 	{
 		for (size_t i = 0, size = _data.size(); i < size; i++)
 		{
-			delete (std::string*)_data[i];
+            delete (QString*)_data[i];
 		}
 	}
 }
@@ -69,10 +69,10 @@ Column& Column::operator=(Column col)
 	return *this;
 }
 
-Column& Column::operator=(const Column&& col)
+Column& Column::operator=(Column&& col)
 {
 	this->_type  = col.type();
-	this->_data  = std::move(col.all_data());
+    this->_data  = col.all_data();
 	this->_flags = std::move(col.flags());
 	return *this;
 }
@@ -107,27 +107,28 @@ void Column::push_back(const std::pair<TYPE, uint64_t> data)
 #define type  first
 #define value second
 	if(flags().set[data.type] == false)
-	{
+    {
 		return;
-	}
+    }
 	if (this->_type == data.type)
-	{
+    {
 		if(this->_type == TYPE::STRING)
 		{
-			std::string* new_str = new std::string(*((std::string*)data.value));
+            QString* new_str = new QString(*((QString*)data.value));
 			_data.push_back(std::move((uint64_t)new_str));
 			return;
-		}
+        }
+        _data.push_back(data.value);
 	}
 	else
-	{
+    {
 		if(this->_type == TYPE::STRING)
 		{
-			std::string* new_str = new std::string(type_to_string(data));
+            QString* new_str = new QString(type_to_string(data));
 			_data.push_back(std::move((uint64_t)new_str));
 			return;
 		}
-		_data.push_back(std::move(set_type_data(data, this->_type)));
+        _data.push_back(std::move(set_type_data(data, this->_type)));
 	}
 #undef type
 #undef value
@@ -135,7 +136,24 @@ void Column::push_back(const std::pair<TYPE, uint64_t> data)
 
 void Column::resize(const size_t size)
 {
+    if(size < this->_data.size())
+    {
+        for(size_t i = size; i < this->_data.size(); i++)
+        {
+            delete (QString*)_data[i];
+        }
+        _data.resize(size, 0);
+        return;
+    }
+
 	_data.resize(size, 0);
+    if(this->type() == TYPE::STRING)
+    {
+        for(size_t i = 0; i < size; i++)
+        {
+            _data[i] = (uint64_t)(new QString(""));
+        }
+    }
 }
 
 void Column::set_type_column(const TYPE type)
@@ -169,12 +187,12 @@ void Column::check_and_resize(const size_t pos)
 void Column::set(std::pair<TYPE, uint64_t> data, const size_t pos)
 {
 	if(flags().set[data.first] == false)
-	{
+    {
 		return;
-	}
+    }
 	check_and_resize(pos);
 
-	std::pair<TYPE, uint64_t&> this_pair(this->type(), this->_data[pos]);
+    std::pair<TYPE, uint64_t&> this_pair({this->type(), this->_data[pos]});
 	this_pair = data;
 }
 
@@ -186,7 +204,7 @@ void Column::add(std::pair<TYPE, uint64_t> data, const size_t pos)
 	}
 	check_and_resize(pos);
 
-	std::pair<TYPE, uint64_t&> this_pair(this->type(), this->_data[pos]);
+    std::pair<TYPE, uint64_t&> this_pair({this->type(), this->_data[pos]});
 	this_pair += data;
 }
 
@@ -199,7 +217,7 @@ void Column::sub(std::pair<TYPE, uint64_t> data, const size_t pos)
 	}
 	check_and_resize(pos);
 
-	std::pair<TYPE, uint64_t&> this_pair(this->type(), this->_data[pos]);
+    std::pair<TYPE, uint64_t&> this_pair({this->type(), this->_data[pos]});
 	this_pair -= data;
 }
 
@@ -212,7 +230,7 @@ void Column::mul(std::pair<TYPE, uint64_t> data, const size_t pos)
 	}
 	check_and_resize(pos);
 
-	std::pair<TYPE, uint64_t&> this_pair(this->type(), this->_data[pos]);
+    std::pair<TYPE, uint64_t&> this_pair({this->type(), this->_data[pos]});
 	this_pair *= data;
 }
 
@@ -225,13 +243,13 @@ void Column::div(std::pair<TYPE, uint64_t> data, const size_t pos)
 	}
 	check_and_resize(pos);
 
-	std::pair<TYPE, uint64_t&> this_pair(this->type(), this->_data[pos]);
+    std::pair<TYPE, uint64_t&> this_pair({this->type(), this->_data[pos]});
 	this_pair /= data;
 }
 
 bool Column::equal(std::pair<TYPE, uint64_t> data, const size_t pos) const
 {
-	if((flags().equal[data.first] == false) ||
+    if((_flags.equal[data.first] == false) ||
 	   (check_size(pos) == true))
 	{
 		return false;
@@ -247,7 +265,7 @@ bool Column::not_equal(std::pair<TYPE, uint64_t> data, const size_t pos) const
 
 bool Column::less(std::pair<TYPE, uint64_t> data, const size_t pos) const
 {
-	if((flags().less[data.first] == false) ||
+    if((_flags.less[data.first] == false) ||
 	   (check_size(pos) == true))
 	{
 		return false;
@@ -259,7 +277,7 @@ bool Column::less(std::pair<TYPE, uint64_t> data, const size_t pos) const
 
 bool Column::more(std::pair<TYPE, uint64_t> data, const size_t pos) const
 {
-	if((flags().less[data.first] == false) ||
+    if((_flags.less[data.first] == false) ||
 	   (check_size(pos) == true))
 	{
 		return false;
@@ -279,14 +297,14 @@ bool Column::more_or_equal(std::pair<TYPE, uint64_t> data, const size_t pos) con
 	return !(less(data, pos));
 }
 
-const struct Column::flags_column& Column::flags() const
+struct Column::flags_column& Column::flags()
 {
 	return _flags;
 }
 
 void Column::flags_column::set_all(const struct flags_column& flags)
 {
-//	this->set = flags;
+	*this = flags;
 }
 
 void Column::flags_column::set_default(const TYPE type)
@@ -294,12 +312,12 @@ void Column::flags_column::set_default(const TYPE type)
 	*this = COLUMN_FLAGS_DEFAULT[static_cast<size_t>(type)];
 }
 
-void Column::set_name(const std::string& name)
+void Column::set_name(const QString& name)
 {
 	_name = name;
 }
 
-void Column::set_name(const std::string&& name)
+void Column::set_name(const QString&& name)
 {
 	_name = std::move(name);
 }
@@ -309,9 +327,9 @@ void Column::set_name(const char* const name)
 	_name = name;
 }
 
-std::string Column::name() const
+QString Column::name() const
 {
 	return _name;
 }
 
-}/*end of namespace db_column*/
+};/*end of namespace db_column*/

@@ -1,4 +1,4 @@
-#include "type.h"
+﻿#include "type.h"
 
 namespace db_column
 {
@@ -27,19 +27,20 @@ const bool& flag_type::operator[](const TYPE type) const
 
 std::ostream& operator<< (std::ostream& os, const TYPE& type)
 {
-    static const std::string type_str[] = { "none",     /*0*/
-                                            "bool",     /*1*/
-                                            "uint8_t",  /*2*/
-                                            "int8_t",   /*3*/
-                                            "uint16_t", /*4*/
-                                            "int16_t",  /*5*/
-                                            "uint32_t", /*6*/
-                                            "int32_t",  /*7*/
-                                            "uint64_t", /*8*/
-                                            "int64_t",  /*9*/
-                                            "float",    /*10*/
-                                            "double",   /*11*/
-                                            "string"};  /*12*/
+    static const char* type_str[] = { "none",     /*0*/
+                                      "bool",     /*1*/
+                                      "uint8_t",  /*2*/
+                                      "int8_t",   /*3*/
+                                      "uint16_t", /*4*/
+                                      "int16_t",  /*5*/
+                                      "uint32_t", /*6*/
+                                      "int32_t",  /*7*/
+                                      "uint64_t", /*8*/
+                                      "int64_t",  /*9*/
+                                      "float",    /*10*/
+                                      "double",   /*11*/
+                                      "string",   /*12*/
+                                      "time"};    /*13*/
     os << type_str[static_cast<size_t>(type)];
     return os;
 }
@@ -51,13 +52,13 @@ constexpr inline uint64_t set_type_base(const uint64_t value,
 	static_assert(type_check<T, bool, uint8_t, uint16_t,
 							 uint32_t, uint64_t, int8_t,
 							 int16_t, int32_t, int64_t,
-							 float, double>::value,
+                             float, double>::value,
     			             "pass not supported type in function \"set_type_base\"");
 	switch(type_will)
 	{
 		case TYPE::UINT8_T:
 		case TYPE::UINT16_T:
-		case TYPE::UINT32_T:
+        case TYPE::UINT32_T:
 		case TYPE::UINT64_T:
 			if constexpr (type_check<T, uint8_t, uint16_t,
 									 uint32_t, uint64_t>::value)
@@ -67,7 +68,7 @@ constexpr inline uint64_t set_type_base(const uint64_t value,
 			else if(type_check<T, int8_t, int16_t,
 							   int32_t, int64_t>::value)
 			{ /*signed -> unsigned*/
-				return abs(reinterpret_cast<const T&>(value));
+                return reinterpret_cast<const T&>(value);
 			}
 			else
 			{ /*float | double -> unsigned*/
@@ -77,11 +78,11 @@ constexpr inline uint64_t set_type_base(const uint64_t value,
 		case TYPE::INT8_T:
 		case TYPE::INT16_T:
 		case TYPE::INT32_T:
-		case TYPE::INT64_T:
+        case TYPE::INT64_T:
 			if constexpr (type_check<T, uint8_t, uint16_t,
 									 uint32_t, uint64_t>::value)
 			{ /*unsigned -> signed*/
-				return abs(static_cast<T>(value));
+                return static_cast<T>(value);
 			}
 			else if(type_check<T, int8_t, int16_t,
 							   int32_t, int64_t>::value)
@@ -131,12 +132,13 @@ constexpr inline uint64_t set_type_base(const uint64_t value,
 			{const T data_value = reinterpret_cast<const T&>(value);
 			if constexpr(std::is_same<T, bool>::value)
 			{
-				std::string* str = new std::string(((data_value) ? "true" : "false"));
+                QString* str = new QString(((data_value) ? "true" : "false"));
 				return (uint64_t)str;
 			}
 			else
 			{
-				std::string* str = new std::string(std::to_string(data_value));
+                QString* str = new QString();
+                str->setNum(data_value);
 				return (uint64_t)str;
 			}
 			return 0;}
@@ -153,7 +155,7 @@ constexpr inline uint64_t set_type_string(const uint64_t value)
 							 int16_t, int32_t, int64_t,
 							 float, double>::value,
     			             "pass not supported type in function \"set_type_string\"");
-	std::string* this_string = (std::string*)value;
+    QString* this_string = (QString*)value;
 	if constexpr(type_check<T, bool>::value)
 	{
 		return static_cast<bool>(*this_string == "true");
@@ -253,22 +255,26 @@ pair<TYPE, uint64_t&>& pair<TYPE, uint64_t&>::operator=(pair<TYPE, uint64_t>& rh
 {
 	if (this->type == rhs.type)
 	{
-		if(this->type == TYPE::STRING)
-		{
-			string* this_str = (string*)this->value;
-			*this_str = *((string*)rhs.value);
-			return *this;
-		}
+        switch(this->type)
+        {
+            case TYPE::STRING:
+                *((QString*)this->value) = *((QString*)rhs.value);
+                return *this;
+            default:
+                break;
+        }
 	}
 	else
-	{
-		if(this->type == TYPE::STRING)
-		{
-			string* this_str = (string*)this->value;
-			*this_str += move(type_to_string(rhs));
-			return *this;
-		}
-		rhs.value = set_type_data(rhs, this->type);
+    {
+        switch(this->type)
+        {
+            case TYPE::STRING:
+                *((QString*)this->value) = type_to_string(rhs);
+                return *this;
+            default:
+                break;
+        }
+        rhs.value = set_type_data(rhs, this->type);
 	}
 
 	this->value = rhs.value;
@@ -279,21 +285,25 @@ pair<TYPE, uint64_t&>& pair<TYPE, uint64_t&>::operator+=(pair<TYPE, uint64_t>& r
 {
 	if (this->type == rhs.type)
 	{
-		if(this->type == TYPE::STRING)
-		{
-			string* this_str = (string*)this->value;
-			*this_str += *((string*)rhs.value);
-			return *this;
-		}
+        switch(this->type)
+        {
+            case TYPE::STRING:
+                *((QString*)this->value) += *((QString*)rhs.value);
+                return *this;
+            default:
+                break;
+        }
 	}
 	else
-	{
-		if(this->type == TYPE::STRING)
-		{
-			string* this_str = (string*)this->value;
-			*this_str += move(type_to_string(rhs));
-			return *this;
-		}
+    {
+        switch(this->type)
+        {
+            case TYPE::STRING:
+                *((QString*)this->value) += type_to_string(rhs);
+                return *this;
+            default:
+                break;
+        }
 		rhs.value = set_type_data(rhs, this->type);
 	}
 
@@ -497,8 +507,8 @@ bool operator==(pair<TYPE, uint64_t> lhs,
     {
         if(lhs.type == TYPE::STRING)
         {
-            string* this_str = (string*)lhs.value;
-            return (*this_str == *((string*)rhs.value));
+            QString* this_str = (QString*)lhs.value;
+            return (*this_str == *((QString*)rhs.value));
         }
     }
     else
@@ -552,8 +562,8 @@ bool operator<(pair<TYPE, uint64_t> lhs,
     {
         if(lhs.type == TYPE::STRING)
         {
-            string* this_str = (string*)lhs.value;
-			return (this_str->size() < (((string*)rhs.value)->size()));
+            QString* this_str = (QString*)lhs.value;
+            return (this_str->size() < (((QString*)rhs.value)->size()));
         }
     }
     else
@@ -601,8 +611,8 @@ bool operator>(pair<TYPE, uint64_t> lhs,
     {
         if(lhs.type == TYPE::STRING)
         {
-            string* this_str = (string*)lhs.value;
-			return (this_str->size() > (((string*)rhs.value)->size()));
+            QString* this_str = (QString*)lhs.value;
+            return (this_str->size() > (((QString*)rhs.value)->size()));
         }
     }
     else
@@ -698,16 +708,11 @@ std::ostream& operator<< (std::ostream& os, const std::pair<TYPE, uint64_t>& dat
 			os << reinterpret_cast<const double&>(data.value);
 			break;
 		case TYPE::STRING:
-			{std::string* this_str = (std::string*)data.value;
-			if (this_str == nullptr)
-			{
-				os << "";
-			}
-			else
-			{
-				os << *((std::string*)data.value);
-			}}
+            os << ((QString*)data.value)->toStdString();
 			break;
+        case TYPE::TIME:
+            //os << ((QDateTime*)data.value)->toString().toStdString();
+            break;
 		default:
     		return os;
 	}

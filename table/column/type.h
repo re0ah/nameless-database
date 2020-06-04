@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <iostream>
 #include <vector>
 #include "../../misc/misc.h"
@@ -19,9 +19,10 @@ enum class TYPE
     INT64_T  = 9,
     FLOAT    = 10,
     DOUBLE   = 11,
-    STRING   = 12
+    STRING   = 12,
+    TIME	 = 13
 };      
-const size_t ENUM_TYPE_SIZE = static_cast<size_t>(TYPE::STRING);
+const size_t ENUM_TYPE_SIZE = static_cast<size_t>(TYPE::TIME);
 
 struct flag_type
 {
@@ -32,37 +33,50 @@ struct flag_type
 	private:
 		bool _data[16];
 };
-        
-inline std::string type_to_string(const std::pair<TYPE, uint64_t> data)
+
+enum class TIME_TYPE
+{
+    TIME_SECOND = 0,
+    TIME_MINUTE = 1,
+    TIME_HOUR	= 2,
+    TIME_DAY	= 3,
+    TIME_MONTH	= 4,
+    TIME_YEAR	= 5
+};
+
+inline QString type_to_string(const std::pair<TYPE, uint64_t> data)
 {
 #define type  first/* macro for pair*/
 #define value second
 	switch(data.type)
 	{
 		case TYPE::BOOL:
-			return ((static_cast<bool>(data.value)) ? std::string("true") : std::string("false"));
-		case TYPE::UINT8_T:
-			return std::to_string(static_cast<uint8_t>(data.value));
+            return ((static_cast<bool>(data.value)) ? (QString("true")) : (QString("false")));
+        case TYPE::UINT8_T:
+            return QString().setNum(static_cast<uint8_t>(data.value));
 		case TYPE::INT8_T:
-			return std::to_string(static_cast<int8_t>(data.value));
+            return QString().setNum(static_cast<int8_t>(data.value));
 		case TYPE::UINT16_T:
-			return std::to_string(static_cast<uint16_t>(data.value));
+            return QString().setNum(static_cast<uint16_t>(data.value));
 		case TYPE::INT16_T:
-			return std::to_string(static_cast<int16_t>(data.value));
+            return QString().setNum(static_cast<int16_t>(data.value));
 		case TYPE::UINT32_T:
-			return std::to_string(static_cast<uint32_t>(data.value));
+            return QString().setNum(static_cast<uint32_t>(data.value));
 		case TYPE::INT32_T:
-			return std::to_string(static_cast<int32_t>(data.value));
+            return QString().setNum(static_cast<int32_t>(data.value));
 		case TYPE::UINT64_T:
-			return std::to_string(static_cast<uint64_t>(data.value));
+            return QString().setNum(static_cast<uint64_t>(data.value));
 		case TYPE::INT64_T:
-			return std::to_string(static_cast<int64_t>(data.value));
+            return QString().setNum(static_cast<int64_t>(data.value));
 		case TYPE::FLOAT:
-			return std::to_string(reinterpret_cast<const float&>(data.value));
+            return QString().setNum(static_cast<float>(data.value));
 		case TYPE::DOUBLE:
-			return std::to_string(reinterpret_cast<const double&>(data.value));
-		default:
-			return std::string("");
+            return QString().setNum(static_cast<double>(data.value));
+        case TYPE::TIME:
+//            return ((QDateTime*)data.value)->toString();
+            return QString();
+        default:
+            return QString();
 	}
 #undef type
 #undef value
